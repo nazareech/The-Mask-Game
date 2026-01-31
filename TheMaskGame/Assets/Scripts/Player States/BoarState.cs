@@ -4,7 +4,10 @@ using UnityEngine.InputSystem;
 public class BoarState : PlayerState
 {
     public BoarState(PlayerController c) : base(c) { }
-    public override void Enter() { Debug.Log("Став кабаном: Сила і ривок!"); }
+    public override void Enter() {
+        //controller.GetComponent<PlayerRotator>().SetRotationActive(false);
+        Debug.Log("Став кабаном: Сила і ривок!"); 
+    }
     public override void Exit() { }
 
     public override void Update() { controller.StandardMovement(5f); } // Повільніший

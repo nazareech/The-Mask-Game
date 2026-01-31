@@ -14,6 +14,7 @@ public class ShamanState : PlayerState
 
     public override void Enter()
     {
+        controller.GetComponent<PlayerRotator>().SetRotationActive(true);
     }
 
     public override void Exit()

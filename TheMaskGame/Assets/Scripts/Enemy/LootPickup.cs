@@ -1,26 +1,27 @@
-using UnityEngine;
+п»їusing UnityEngine;
 
 public class LootPickup : MonoBehaviour
 {
-    private float coinsAmount; // Звичайна змінна замість SyncVar
+    private float coinsAmount; // Р—РІРёС‡Р°Р№РЅР° Р·РјС–РЅРЅР° Р·Р°РјС–СЃС‚СЊ SyncVar
 
     void OnTriggerEnter(Collider other)
     {
-        // Перевірка тегу
+        // РџРµСЂРµРІС–СЂРєР° С‚РµРіСѓ
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
             {
-                //player.AddCoins(coinsAmount);
-                // Повертаємо об'єкт у пул
+                
+                player.AddCoins(coinsAmount);
+                // РџРѕРІРµСЂС‚Р°С”РјРѕ РѕР±'С”РєС‚ Сѓ РїСѓР»
                 if (LootPool.Instance != null)
                 {
                     LootPool.Instance.ReturnLoot(gameObject);
                 }
                 else
                 {
-                    Destroy(gameObject); // Якщо пулу немає, просто знищуємо
+                    Destroy(gameObject); // РЇРєС‰Рѕ РїСѓР»Сѓ РЅРµРјР°С”, РїСЂРѕСЃС‚Рѕ Р·РЅРёС‰СѓС”РјРѕ
                 }
             }
         }

@@ -90,7 +90,7 @@ public class EnemyBase : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Bullet"))
+        if (other.CompareTag("Banana"))
         {
             /*
             ScriptedBullet bullet = other.GetComponent<ScriptedBullet>();
