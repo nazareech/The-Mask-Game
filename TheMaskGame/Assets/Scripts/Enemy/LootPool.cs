@@ -1,27 +1,27 @@
 using UnityEngine;
-using Mirror;
 using System.Collections.Generic;
 
-public class LootPool : NetworkBehaviour
+public class LootPool : MonoBehaviour
 {
-    public static LootPool Instance; // Singleton for easy access
+    public static LootPool Instance; // Сінглтон
 
     [Header("Settings")]
     public GameObject lootPrefab;
     public int poolSize = 20;
 
-    [Header("Audion Effects")]
+    [Header("Audio Effects")]
     public AudioClip LootDropSound;
     public AudioSource audioSource;
 
     private Queue<GameObject> pool = new Queue<GameObject>();
-    
+
     void Awake()
     {
         Instance = this;
     }
 
-    public override void OnStartServer()
+    // Замість OnStartServer використовуємо Start
+    void Start()
     {
         InitializePool();
     }
@@ -37,57 +37,50 @@ public class LootPool : NetworkBehaviour
     private GameObject CreateNewLootObject()
     {
         GameObject loot = Instantiate(lootPrefab);
-        loot.SetActive(false); // Одразу ховаємо
+        loot.SetActive(false);
+        // Можна додати parent, щоб не засмічувати ієрархію
+        loot.transform.SetParent(transform);
         pool.Enqueue(loot);
         return loot;
     }
 
-    [Server]
     public GameObject GetLoot(Vector3 position, Quaternion rotation)
     {
         GameObject loot;
 
-        TargetPlaySound();
+        PlaySound(); // Викликаємо звук напряму, без RPC
 
-        // Якщо пул пустий — створюємо новий об'єкт
         if (pool.Count == 0)
         {
-            loot = Instantiate(lootPrefab);
+            loot = CreateNewLootObject(); // Використовуємо той самий метод створення
         }
         else
         {
             loot = pool.Dequeue();
         }
 
-        // Налаштовуємо позицію
         loot.transform.position = position;
         loot.transform.rotation = rotation;
 
-        // Вмикаємо його, щоб він був готовий до спавну
-        loot.SetActive(true);
+        loot.SetActive(true); // Просто вмикаємо об'єкт
 
         return loot;
     }
 
-    //[TargetRpc]
-    private void TargetPlaySound()
+    private void PlaySound()
     {
         if (audioSource != null && LootDropSound != null)
         {
-
             audioSource.pitch = Random.Range(0.9f, 1.1f);
             float randomVolume = Random.Range(0.8f, 1.0f);
-
             audioSource.PlayOneShot(LootDropSound, randomVolume);
         }
     }
 
-    [Server]
     public void ReturnLoot(GameObject loot)
     {
-        loot.SetActive(false);
-        NetworkServer.UnSpawn(loot); // Відключаємо від мережі
+        loot.SetActive(false); // Просто ховаємо
+        loot.transform.SetParent(transform); // Повертаємо під батьківський об'єкт (для порядку)
         pool.Enqueue(loot);
     }
-
 }

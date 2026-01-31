@@ -1,9 +1,10 @@
-
-// Типи тварин для ідентифікації
+п»ї
+// РўРёРїРё С‚РІР°СЂРёРЅ РґР»СЏ С–РґРµРЅС‚РёС„С–РєР°С†С–С—
 using UnityEngine;
 
 public enum AnimalType
 {
+    Shanaman,
     Boar,
     Bunny,
     Bird,
@@ -13,8 +14,8 @@ public enum AnimalType
 [System.Serializable]
 public class RadialMenuOption
 {
-    public string Name;         // Назва (наприклад "Boar")
-    public Texture Icon;        // Іконка
-    public AnimalType Type;     // Який це режим
-    public bool IsUnlocked;     // Чи доступний цей режим зараз
+    public string Name;         // РќР°Р·РІР° (РЅР°РїСЂРёРєР»Р°Рґ "Boar")
+    public Texture Icon;        // Р†РєРѕРЅРєР°
+    public AnimalType Type;     // РЇРєРёР№ С†Рµ СЂРµР¶РёРј
+    public bool IsUnlocked;     // Р§Рё РґРѕСЃС‚СѓРїРЅРёР№ С†РµР№ СЂРµР¶РёРј Р·Р°СЂР°Р·
 }

@@ -1,18 +1,15 @@
 using UnityEngine;
-using Mirror; // 1. Додаємо Mirror
 
-public class EnemySpawner : NetworkBehaviour // 2. Успадковуємо від NetworkBehaviour
+public class EnemySpawner : MonoBehaviour
 {
     [Header("Налаштування Спавна")]
-    public int enemiesToSpawn = 50; // Для тесту краще почати з меншого числа
+    public int enemiesToSpawn = 50;
     public float spawnRadius = 50f;
     private EnemyPooler pooler;
 
-    // 3. Використовуємо OnStartServer замість Start
-    // Це гарантує, що код виконається тільки коли сервер готовий
-    public override void OnStartServer()
+    void Start()
     {
-        pooler = FindFirstObjectByType<EnemyPooler>(); // FindObjectOfType застаріло в нових Unity
+        pooler = FindFirstObjectByType<EnemyPooler>();
 
         if (pooler == null)
         {
@@ -23,7 +20,6 @@ public class EnemySpawner : NetworkBehaviour // 2. Успадковуємо ві
         SpawnEnemies();
     }
 
-    [Server] // 4. Гарантія, що метод викличе тільки сервер
     void SpawnEnemies()
     {
         int successfullySpawned = 0;
@@ -35,26 +31,24 @@ public class EnemySpawner : NetworkBehaviour // 2. Успадковуємо ві
             if (enemy != null)
             {
                 Vector3 randomPosition = transform.position + Random.insideUnitSphere * spawnRadius;
-                randomPosition.y = transform.position.y;
+                randomPosition.y = transform.position.y; // Тримаємо на одній висоті
 
                 enemy.transform.position = randomPosition;
-                enemy.transform.rotation = Quaternion.identity; // Бажано скинути поворот
+                enemy.transform.rotation = Quaternion.identity;
 
-                // Робимо ворога незалежним від пулу перед спавном
+                // Робимо ворога незалежним від пулу перед спавном (опціонально, залежить від вашої архітектури)
                 enemy.transform.SetParent(null);
 
-                // 5. Порядок дій для Mirror:
-                enemy.SetActive(true); // Спочатку вмикаємо фізично на сервері
-                NetworkServer.Spawn(enemy); // Потім кажемо мережі "Заспавни це у всіх клієнтів"
+                enemy.SetActive(true); // Вмикаємо об'єкт (раніше тут був NetworkServer.Spawn)
 
                 successfullySpawned++;
             }
             else
             {
-                Debug.LogWarning("Пул вичерпано!");
+                Debug.LogWarning("Пул ворогів вичерпано!");
                 break;
             }
         }
-        Debug.Log($"Заспавнено {successfullySpawned} ворогів через мережу.");
+        Debug.Log($"Заспавнено {successfullySpawned} ворогів локально.");
     }
 }

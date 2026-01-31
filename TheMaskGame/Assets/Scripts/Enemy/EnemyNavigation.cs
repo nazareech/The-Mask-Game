@@ -1,71 +1,63 @@
 using UnityEngine;
 using UnityEngine.AI;
-using Mirror; // 1. Додаємо Mirror
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class EnemyAI : NetworkBehaviour // 2. Успадковуємося від NetworkBehaviour
+public class EnemyAI : MonoBehaviour
 {
     private NavMeshAgent agent;
     private Transform targetTransform;
-
     private PlayerController targetController; // Посилання на контролер гравця
 
-    public NetworkAnimator networkAnimator;
+    // Замінюємо NetworkAnimator на звичайний Animator
+    public Animator animator;
 
     [Header("AI Settings")]
     public float chaseRange = 15f;
     public float attackRange = 2f;
     public float lookSpeed = 5f;
 
-    // Змінні для частоти атак в EnemyAI
     [Header("Combat Settings")]
-    public float attackInterval = 1.5f; // Ворог б'є кожні 1.5 сек
+    public float attackInterval = 1.5f;
     private float lastAttackTime;
-    public float damageAmount = 10f; // Сила удару
+    public float damageAmount = 10f;
 
-    // Інтервал пошуку гравця (щоб не навантажувати процесор кожного кадру)
+    // Таймер пошуку
     private float searchTimer;
     private float searchInterval = 0.5f;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-    }
 
-    public override void OnStartClient()
-    {
-        base.OnStartClient();
-
-        // Якщо це клієнт (не сервер), вимикаємо інтелект і фізику навігації
-        // Щоб ворог рухався ТІЛЬКИ так, як каже NetworkTransform
-        if (!isServer)
+        // Якщо аніматор не прив'язаний в інспекторі, пробуємо знайти його автоматично
+        if (animator == null)
         {
-            NavMeshAgent agent = GetComponent<NavMeshAgent>();
-            if (agent != null)
-            {
-                agent.enabled = false;
-            }
-
-         }
+            animator = GetComponent<Animator>();
+            if (animator == null) animator = GetComponentInChildren<Animator>();
+        }
     }
 
-    // 3. [ServerCallback] означає, що цей Update виконується ТІЛЬКИ на сервері
-    [ServerCallback]
+    // Замість [ServerCallback] використовуємо звичайний Update
     void Update()
     {
-        // 1. Якщо у нас є ціль, перевіряємо, чи вона не померла "щойно"
+        // 1. Перевірка на смерть цілі
         if (targetTransform != null && targetController != null)
         {
+            /*
+            // Переконайтеся, що у PlayerController є метод GetPlayerIsDead() або публічна властивість isDead
             if (targetController.GetPlayerIsDead())
             {
-                // Ціль померла під час погоні - забуваємо її
                 targetTransform = null;
                 targetController = null;
                 agent.isStopped = true;
+
+                // Можна скинути анімацію руху
+                if (animator) animator.SetFloat("Speed", 0);
             }
+            */
         }
 
-        // Періодично шукаємо найближчого гравця
+        // Періодично шукаємо гравця
         searchTimer -= Time.deltaTime;
         if (searchTimer <= 0)
         {
@@ -78,26 +70,28 @@ public class EnemyAI : NetworkBehaviour // 2. Успадковуємося ві�
 
         float distance = Vector3.Distance(transform.position, targetTransform.position);
 
+        // Логіка переслідування
         if (distance <= chaseRange)
         {
             ChasePlayer();
         }
         else
         {
-            // Якщо гравець втік далеко - зупиняємось
             agent.isStopped = true;
+            if (animator) animator.SetFloat("Speed", 0);
         }
 
+        // Логіка атаки
         if (distance <= attackRange)
         {
             AttackPlayer();
         }
     }
 
-    [Server] // Цей метод викликається тільки на сервері
     void FindClosestPlayer()
     {
-        // Шукаємо ВСІХ гравців на карті
+        // В одиночній грі часто достатньо FindGameObjectWithTag (без "s"), 
+        // але залишимо логіку пошуку найближчого на випадок, якщо ви додасте союзників.
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
 
         float closestDistance = Mathf.Infinity;
@@ -108,11 +102,10 @@ public class EnemyAI : NetworkBehaviour // 2. Успадковуємося ві�
         {
             PlayerController pc = player.GetComponent<PlayerController>();
 
-            if (pc == null || pc.GetPlayerIsDead()) continue; // Пропускаємо мертвих гравців 
+            // if (pc == null || pc.GetPlayerIsDead()) continue;
 
             float d = Vector3.Distance(transform.position, player.transform.position);
 
-            // Якщо цей гравець ближче за попереднього знайденого
             if (d < closestDistance)
             {
                 closestDistance = d;
@@ -121,26 +114,30 @@ public class EnemyAI : NetworkBehaviour // 2. Успадковуємося ві�
             }
         }
 
-        // Призначаємо ціль
         targetTransform = potentialTarget;
         targetController = bestController;
     }
 
-    [Server]
     void ChasePlayer()
     {
         if (targetTransform == null) return;
 
         agent.isStopped = false;
         agent.SetDestination(targetTransform.position);
+
+        // Передаємо швидкість в аніматор для анімації бігу
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", agent.velocity.magnitude);
+        }
     }
 
-    [Server]
     void AttackPlayer()
     {
         if (targetTransform == null) return;
 
         agent.isStopped = true;
+        if (animator) animator.SetFloat("Speed", 0); // Зупиняємо анімацію бігу
 
         // Поворот до гравця
         Vector3 direction = (targetTransform.position - transform.position).normalized;
@@ -150,18 +147,23 @@ public class EnemyAI : NetworkBehaviour // 2. Успадковуємося ві�
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * lookSpeed);
         }
 
+        // Перевірка кулдауну атаки
         if (Time.time >= lastAttackTime + attackInterval)
         {
-            // Наносимо урон конкретному гравцю через збережене посилання
-            targetController.TakeDamage(damageAmount);
+            // Наносимо урон
+            if (targetController != null)
+            {
+                // targetController.TakeDamage(damageAmount);
+                Debug.Log($"Enemy attacked player for {damageAmount} damage");
+            }
 
-            Debug.Log($"Enemy attacked player for {damageAmount} damage");
-
-            // Оновлюємо таймер
             lastAttackTime = Time.time;
 
-            // Тут можна запустити анімацію удару через NetworkAnimator
-            networkAnimator.SetTrigger("Attack");
+            // Запускаємо звичайний тригер аніматора
+            if (animator != null)
+            {
+                animator.SetTrigger("Attack");
+            }
         }
     }
 }

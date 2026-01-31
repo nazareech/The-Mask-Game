@@ -164,6 +164,11 @@ public class RadialMenu : MonoBehaviour
                 Debug.Log("Switching to Gorilla");
                 playerController.SetState(new GorillaState(playerController));
                 break;
+
+            case AnimalType.Shanaman:
+                Debug.Log("Switching to Shanaman");
+                playerController.SetState(new ShamanState(playerController));
+                break;
         }
     }
 

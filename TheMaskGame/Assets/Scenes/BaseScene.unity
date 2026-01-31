@@ -233,12 +233,13 @@ GameObject:
   - component: {fileID: 72088340}
   - component: {fileID: 72088339}
   - component: {fileID: 72088338}
+  - component: {fileID: 72088342}
   m_Layer: 6
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!64 &72088338
 MeshCollider:
@@ -334,6 +335,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &72088342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 72088336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshSurface
+  m_SerializedVersion: 0
+  m_AgentTypeID: 0
+  m_CollectObjects: 0
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_UseGeometry: 0
+  m_DefaultArea: 0
+  m_GenerateLinks: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.16666667
+  m_MinRegionArea: 2
+  m_NavMeshData: {fileID: 23800000, guid: d2447558b98a06241b639130f22f8699, type: 2}
+  m_BuildHeightMesh: 0
 --- !u!1 &455429056
 GameObject:
   m_ObjectHideFlags: 0
@@ -386,21 +419,25 @@ MonoBehaviour:
   Radius: 300
   playerController: {fileID: 1646607123}
   AllOptions:
+  - Name: Shaman
+    Icon: {fileID: 2800000, guid: 2ca7ba75ee6662949980dbfee2be433a, type: 3}
+    Type: 0
+    IsUnlocked: 1
   - Name: Boar
     Icon: {fileID: 2800000, guid: d8207e91465d02d4396b88be1fc8c6df, type: 3}
-    Type: 0
-    IsUnlocked: 0
-  - Name: Bunny
-    Icon: {fileID: 2800000, guid: a00ce964120b5474294783e581dd38f4, type: 3}
     Type: 1
     IsUnlocked: 1
+  - Name: Bunny
+    Icon: {fileID: 2800000, guid: a00ce964120b5474294783e581dd38f4, type: 3}
+    Type: 2
+    IsUnlocked: 0
   - Name: Colibry
     Icon: {fileID: 2800000, guid: f4c812f987802f14097c70b53a43fb2a, type: 3}
-    Type: 2
+    Type: 3
     IsUnlocked: 0
   - Name: Gorila
     Icon: {fileID: 2800000, guid: 2ca7ba75ee6662949980dbfee2be433a, type: 3}
-    Type: 3
+    Type: 4
     IsUnlocked: 0
   Icons:
   - {fileID: 2800000, guid: d8207e91465d02d4396b88be1fc8c6df, type: 3}
@@ -655,6 +692,182 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &738351802
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 738351803}
+  - component: {fileID: 738351806}
+  - component: {fileID: 738351805}
+  - component: {fileID: 738351804}
+  - component: {fileID: 738351807}
+  m_Layer: 0
+  m_Name: Pool Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &738351803
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738351802}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.73039, y: 3.66084, z: 1.05067}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &738351804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738351802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 552bbb29b80d5b4499429668ede6ad7c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LootPool
+  lootPrefab: {fileID: 1386129781817215205, guid: 808062d8cc0925d448b3eb75dbd43573, type: 3}
+  poolSize: 20
+  LootDropSound: {fileID: 8300000, guid: 444eee9031d662f47b58ebede35cad97, type: 3}
+  audioSource: {fileID: 738351807}
+--- !u!114 &738351805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738351802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66c232cfbbf5b1f4e8950fcf934cdd0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
+  enemiesToSpawn: 1
+  spawnRadius: 50
+--- !u!114 &738351806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738351802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb42e550663224c4a97df0b486c5fa98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyPooler
+  enemyPrefab: {fileID: 740615916034656309, guid: 98be1793eecf8dc408f33ac1d3e45e62, type: 3}
+  poolSize: 100
+--- !u!82 &738351807
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738351802}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 444eee9031d662f47b58ebede35cad97, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &770455847
 GameObject:
   m_ObjectHideFlags: 0
@@ -905,7 +1118,7 @@ Transform:
   m_GameObject: {fileID: 912484166}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.68728, y: 2.83, z: -4.02}
+  m_LocalPosition: {x: 1.68728, y: 1.25, z: -4.02}
   m_LocalScale: {x: 1.965939, y: 1.965939, z: 1.965939}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -923,7 +1136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eef32ba40c939d74fba475148d34f3ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityPickup
-  typeToUnlock: 2
+  typeToUnlock: 3
   pickupEffect: {fileID: 0}
 --- !u!1 &1006781984
 GameObject:
@@ -1036,7 +1249,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eef32ba40c939d74fba475148d34f3ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityPickup
-  typeToUnlock: 0
+  typeToUnlock: 1
   pickupEffect: {fileID: 0}
 --- !u!135 &1030462378
 SphereCollider:
@@ -1125,7 +1338,7 @@ Transform:
   m_GameObject: {fileID: 1030462376}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.59, y: 2.83, z: 4.16}
+  m_LocalPosition: {x: -9.59, y: 1.25, z: 4.16}
   m_LocalScale: {x: 1.965939, y: 1.965939, z: 1.965939}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -1163,7 +1376,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eef32ba40c939d74fba475148d34f3ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityPickup
-  typeToUnlock: 3
+  typeToUnlock: 4
   pickupEffect: {fileID: 0}
 --- !u!135 &1493826507
 SphereCollider:
@@ -1252,7 +1465,7 @@ Transform:
   m_GameObject: {fileID: 1493826505}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.68728, y: 2.83, z: 12.00064}
+  m_LocalPosition: {x: 1.68728, y: 1.25, z: 12.00064}
   m_LocalScale: {x: 1.965939, y: 1.965939, z: 1.965939}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -1399,7 +1612,7 @@ GameObject:
   - component: {fileID: 1646607124}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1514,6 +1727,7 @@ MonoBehaviour:
   jumpHeight: 2
   gravity: -9.81
   useGravity: 1
+  dashDamage: 100
   mouseSensitivity: 100
   playerCamera: {fileID: 1715525720}
   menuController: {fileID: 455429058}
@@ -1731,3 +1945,4 @@ SceneRoots:
   - {fileID: 912484170}
   - {fileID: 1030462381}
   - {fileID: 1493826510}
+  - {fileID: 738351803}

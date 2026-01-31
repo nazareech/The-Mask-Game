@@ -1,28 +1,33 @@
 using UnityEngine;
-using Mirror;
 
-public class LootPickup : NetworkBehaviour
+public class LootPickup : MonoBehaviour
 {
-    [SyncVar]
-    private float coinsAmount;
+    private float coinsAmount; // «вичайна зм≥нна зам≥сть SyncVar
 
-    [ServerCallback]
     void OnTriggerEnter(Collider other)
     {
-        if(other.CompareTag("Player"))
+        // ѕерев≥рка тегу
+        if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
             {
-                player.AddCoins(coinsAmount);
-                LootPool.Instance.ReturnLoot(gameObject);
+                //player.AddCoins(coinsAmount);
+                // ѕовертаЇмо об'Їкт у пул
+                if (LootPool.Instance != null)
+                {
+                    LootPool.Instance.ReturnLoot(gameObject);
+                }
+                else
+                {
+                    Destroy(gameObject); // якщо пулу немаЇ, просто знищуЇмо
+                }
             }
         }
     }
 
-    [Server]
     public void SetValue(float amount)
     {
         coinsAmount = amount;
-    } 
+    }
 }

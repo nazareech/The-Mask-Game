@@ -1,7 +1,6 @@
 using UnityEngine;
-using Mirror;
 
-public class EnemyBase : NetworkBehaviour // 2. Успадковуємо від NetworkBehaviour
+public class EnemyBase : MonoBehaviour
 {
     [Header("Health Settings")]
     public float maxHealth = 100f;
@@ -14,34 +13,22 @@ public class EnemyBase : NetworkBehaviour // 2. Успадковуємо від 
     [Range(0, 1)]
     [SerializeField] private float directDepositPercent = 0.3f; // 30% на рахунок, 70% на землю
 
-    // 3. SyncVar дозволяє автоматично передавати значення HP клієнтам (корисно для смужки здоров'я)
-    [SyncVar]
+    // SyncVar не потрібен в одиночній грі, просто приватна змінна
     private float currentHealth;
 
-    // Викликається на клієнті, коли об'єкт з'являється в мережі
-    public override void OnStartClient()
-    {
-        base.OnStartClient();
-        // Примусово вмикаємо об'єкт, бо Mirror міг заспавнити його вимкненим
-        gameObject.SetActive(true);
-    }
-
-    // 4. Використовуємо OnEnable для скидання здоров'я
-    // Цей метод спрацьовує щоразу, коли об'єкт дістають з пулу (SetActive(true))
+    // OnEnable ідеально підходить для об'єктів з пулу.
+    // Спрацьовує щоразу, коли ми робимо SetActive(true)
     void OnEnable()
     {
         currentHealth = maxHealth;
     }
 
-    // 5. [Server] означає, що цей код виконається ТІЛЬКИ на сервері.
-    // Клієнти не можуть самі собі нанести шкоду, це вирішує сервер.
-    [Server]
+    // Прибираємо [Server], тепер це звичайний публічний метод
     public void TakeDamage(float damageAmount, GameObject attacker)
     {
         if (currentHealth <= 0) return;
 
         currentHealth -= damageAmount;
-        // Debug.Log(gameObject.name + " отримав урон, HP: " + currentHealth);
 
         if (currentHealth <= 0)
         {
@@ -49,71 +36,77 @@ public class EnemyBase : NetworkBehaviour // 2. Успадковуємо від 
         }
     }
 
-    [Server] // Обробка смерті тільки на сервері
+    // Логіка смерті
     public void Die(GameObject attacker)
     {
         float directMoney = totalReward * directDepositPercent; // Гроші на рахунок
         float lootMoney = totalReward - directMoney; // Гроші, що випадають
 
+        // Нарахування грошей гравцю напряму
         if (attacker != null)
         {
+            // Переконайтеся, що на гравці або на кулі є посилання на PlayerController
             PlayerController player = attacker.GetComponent<PlayerController>();
+
+            // Іноді "attacker" може бути кулею, тоді треба шукати власника (залежить від вашої реалізації стрільби)
+            if (player == null && attacker.CompareTag("Player"))
+            {
+                player = attacker.GetComponent<PlayerController>();
+            }
+
             if (player != null)
             {
                 player.AddCoins(directMoney);
             }
         }
 
+        // Випадання луту
         if (lootMoney > 0)
         {
-            // Звертаємось до нашого Singleton пулу
             if (LootPool.Instance != null)
             {
-                // Беремо готовий об'єкт з пулу (він ставиться в позицію і вмикається всередині методу GetLoot)
+                // Отримуємо об'єкт з пулу (він вже активний і на позиції завдяки новому скрипту LootPool)
                 GameObject lootObj = LootPool.Instance.GetLoot(transform.position + Vector3.up, Quaternion.identity);
 
-                // Налаштовуємо значення
                 LootPickup lootItem = lootObj.GetComponent<LootPickup>();
                 if (lootItem != null)
                 {
                     lootItem.SetValue(lootMoney);
                 }
 
-                // ВАЖЛИВО: Кажемо Mirror, що цей об'єкт треба показати всім клієнтам.
-                // Навіть якщо об'єкт був "UnSpawned" раніше, Spawn поверне його в мережу.
-                NetworkServer.Spawn(lootObj);
+                // NetworkServer.Spawn тут більше не потрібен
             }
             else
             {
-                Debug.LogError("LootPool Instance не знайдено на сцені!");
+                Debug.LogWarning("LootPool Instance не знайдено!");
             }
         }
 
-        // 1. Повідомляємо клієнтам, що об'єкт зникає
-        NetworkServer.UnSpawn(gameObject);
-        // 2. Вимикаємо його фізично на сервері (повертаємо в пулл)
+        // Замість NetworkServer.UnSpawn просто ховаємо об'єкт
         gameObject.SetActive(false);
-        // Опціонально: Скинути здоров'я на максимум для наступного використання
-        currentHealth = maxHealth;
 
         Debug.Log($"{gameObject.name} помер.");
     }
 
-    [ServerCallback]
     void OnTriggerEnter(Collider other)
     {
-        // Приклад: якщо ворог натрапляє на кулю гравця
         if (other.CompareTag("Bullet"))
         {
-            // Kуля має скрипт ScriptedBullet з інформацією про урон
+            /*
             ScriptedBullet bullet = other.GetComponent<ScriptedBullet>();
             if (bullet != null)
             {
+                // Передаємо власника кулі (bullet.GetOwner()), щоб знати, кому нарахувати гроші
                 TakeDamage(bullet.GetDamage(), bullet.GetOwner());
-                // Після нанесення урону можна знищити кулю
+
                 bullet.ReturnToPool();
             }
+            */
         }
+    }
+    public float GetCurrentEnemyHealth()
+    {
+        return currentHealth;
     }
 
     public float GetEnemyDamage()

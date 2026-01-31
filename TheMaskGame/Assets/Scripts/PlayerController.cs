@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
-
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
@@ -11,6 +11,10 @@ public class PlayerController : MonoBehaviour
     public float gravity = -9.81f;
     public bool useGravity = true;
     private Vector3 velocity;
+
+    [Header("Бойові Налаштування")] // 
+    public float dashDamage = 100f;  // Урон від ривка кабана
+    private bool isDashing = false; // Чи відбувається зараз ривок
 
     [Header("Налаштування миші")]
     public float mouseSensitivity = 100f;
@@ -32,12 +36,11 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         SetCamera(cameraSelected); // Встановлюємо початкову камеру
-
         cameraTransform = playerCamera.GetComponent<Transform>();
         cameraComponent = playerCamera.GetComponent<Camera>();
 
         characterController = GetComponent<CharacterController>();
-        SetState(new BoarState(this)); // Початковий стан
+        SetState(new ShamanState(this)); // Початковий стан
     }
 
     public void ResetVelocity()
@@ -67,6 +70,7 @@ public class PlayerController : MonoBehaviour
             HandleMouseLook(); // Додаємо метод для огляду
         }
 
+        /*
         // 1 - Кабан
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
@@ -89,6 +93,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Current state is: Gorilla");
             SetState(new GorillaState(this));
         }
+        */
 
         if(Keyboard.current[Key.T].wasPressedThisFrame)
         {
@@ -101,7 +106,7 @@ public class PlayerController : MonoBehaviour
             menuController.Toggle();
         }
 
-            currentState.Update();
+        currentState.Update();
         currentState.Ability();
         ApplyGravity();
     }
@@ -176,17 +181,43 @@ public class PlayerController : MonoBehaviour
                        transform.forward * (k.wKey.isPressed ? 1 : k.sKey.isPressed ? -1 : 0);
         characterController.Move(move * speed * Time.deltaTime);
 
-        if (k.spaceKey.wasPressedThisFrame && Physics.Raycast(transform.position, Vector3.down, 1.1f))
+    }
+
+    public void BunnyJump(float jaumpHeight)
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, 1.1f))
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
     }
 
-    public void Dash(float force) { characterController.Move(transform.forward * force); }
+    public void Dash(float force) 
+    {
+        // Вмикаємо режим атаки
+        if (!isDashing)
+        {
+            StartCoroutine(DashRoutine(force));
+        }
+    }
+    private IEnumerator DashRoutine(float force)
+    {
+        isDashing = true; // Вмикаємо "хітбокс"
+
+        // Виконуємо рух
+        characterController.Move(transform.forward * force);
+
+        // Чекаємо зовсім трохи, щоб фізика встигла зарахувати зіткнення
+        // (0.2 секунди "активного" стану тарана)
+        yield return new WaitForSeconds(0.2f);
+
+        isDashing = false; // Вимикаємо "хітбокс"
+    }
     public void Fly(float ySpeed) {
         characterController.Move(Vector3.up * ySpeed * Time.deltaTime);
         velocity.y = 0; 
     }
 
     public void ThrowBanana() { Debug.Log("Кинув банан!"); }
+
+    public void StaffAttack() { Debug.Log("Атакував посохом!"); }
 
     private void ApplyGravity()
     {
@@ -206,25 +237,33 @@ public class PlayerController : MonoBehaviour
     // Вбудований метод Unity, який спрацьовує, коли колайдер входить в тригер
     private void OnTriggerEnter(Collider other)
     {
-        // Перевіряємо, чи об'єкт, в який ми увійшли, має компонент AbilityPickup
+        // 1. Логіка підбору здібностей (ваша стара)
         AbilityPickup item = other.GetComponent<AbilityPickup>();
-
         if (item != null)
         {
-            // 1. Розблоковуємо здібність в меню
-            if (menuController != null)
-            {
-                menuController.UnlockMode(item.typeToUnlock);
-            }
-
-            // 2. (Опціонально) Створюємо ефект зникнення
-            if (item.pickupEffect != null)
-            {
-                Instantiate(item.pickupEffect, other.transform.position, Quaternion.identity);
-            }
-
-            // 3. Знищуємо предмет зі сцени
+            if (menuController != null) menuController.UnlockMode(item.typeToUnlock);
+            if (item.pickupEffect != null) Instantiate(item.pickupEffect, other.transform.position, Quaternion.identity);
             Destroy(other.gameObject);
         }
+
+        // 2. NEW: Логіка атаки кабана (якщо це ворог і ми в ривку)
+        if (isDashing)
+        {
+            // Шукаємо компонент EnemyBase на об'єкті, в який врізалися
+            EnemyBase enemy = other.GetComponent<EnemyBase>();
+
+            if (enemy != null)
+            {
+                Debug.Log($"Врізалися в ворога {enemy.name} під час ривка! Здоров'я ворога: {enemy.GetCurrentEnemyHealth()}");
+                enemy.TakeDamage(dashDamage, this.gameObject);
+
+                // Опціонально: Можна додати ефект відштовхування або звуку удару тут
+            }
+        }
+    }
+
+    public void AddCoins(float directMoney)
+    {
+        Debug.Log($"Додано {directMoney} монет гравцю.");
     }
 }

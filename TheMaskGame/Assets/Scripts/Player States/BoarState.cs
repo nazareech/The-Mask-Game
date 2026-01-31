@@ -13,6 +13,8 @@ public class BoarState : PlayerState
     {
         // Ривок вперед при натисканні Shift
         if (Keyboard.current.leftShiftKey.wasPressedThisFrame)
+        {
             controller.Dash(10f); // Ривок вперед
+        }
     }
 }
