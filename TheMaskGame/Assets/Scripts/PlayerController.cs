@@ -33,9 +33,6 @@ public class PlayerController : MonoBehaviour
     {
         SetCamera(cameraSelected); // Встановлюємо початкову камеру
 
-        //// Курсор зникає та фіксується в центрі екрана
-        //Cursor.lockState = CursorLockMode.Locked;
-
         cameraTransform = playerCamera.GetComponent<Transform>();
         cameraComponent = playerCamera.GetComponent<Camera>();
 
@@ -53,6 +50,7 @@ public class PlayerController : MonoBehaviour
 
         if (cameraSelected == 1)
         {
+           
             Vector3 targetPoint = GetMousePoint();
             // РАСЧЕТ НАПРАВЛЕНИЯ ОТ ТОРСА (transform.position)
             Vector3 direction = targetPoint - transform.position;

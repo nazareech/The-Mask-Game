@@ -37,6 +37,8 @@ public class RadialMenu : MonoBehaviour
     {
         if (_isOpen) Close();
         else Open();
+
+        Cursor.lockState = CursorLockMode.None; // Відкриваємо курсор
     }
 
     public void Open()
