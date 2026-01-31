@@ -13,4 +13,6 @@ public abstract class PlayerState
     public abstract void Update(); // Логіка руху та вводу
     public abstract void Ability(); // Унікальна здатність
     public abstract void Exit(); // Очищення при виході
+    public virtual void OnTriggerEnter(Collider other) { }
+    public virtual void OnControllerColliderHit(ControllerColliderHit hit) { }
 }

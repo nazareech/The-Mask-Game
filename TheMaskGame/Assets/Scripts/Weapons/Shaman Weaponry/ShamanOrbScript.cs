@@ -5,7 +5,7 @@ public class ShamanOrbScript : MonoBehaviour
     private GameObject owner;
     private float speed;
     private float damage;
-    private float knockbackForce; // Сила відштовхування
+    private float knockbackForce;
 
     [Header("Налаштування")]
     public float lifeTime = 4f;
@@ -20,7 +20,6 @@ public class ShamanOrbScript : MonoBehaviour
         CancelInvoke(nameof(ReturnToPool));
     }
 
-    // Метод налаштування (додали knockback)
     public void Setup(float newSpeed, float newDamage, float newKnockback, GameObject newOwner)
     {
         speed = newSpeed;
@@ -31,34 +30,67 @@ public class ShamanOrbScript : MonoBehaviour
 
     void Update()
     {
+        // Рух кулі вперед
         transform.Translate(Vector3.forward * speed * Time.deltaTime);
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-        if (owner != null && other.gameObject == owner) return;
+    // ---------------------------------------------------------
+    // УНІВЕРСАЛЬНА СИСТЕМА ВЛУЧАННЯ
+    // ---------------------------------------------------------
 
-        EnemyBase enemy = other.GetComponent<EnemyBase>();
+    // 1. Спрацьовує, якщо куля пролітає крізь тригер
+    private void OnTriggerEnter(Collider other)
+    {
+        HandleHit(other.gameObject);
+    }
+
+    // 2. Спрацьовує, якщо куля врізається в твердий об'єкт
+    private void OnCollisionEnter(Collision collision)
+    {
+        HandleHit(collision.gameObject);
+    }
+
+    // Спільна логіка удару
+    private void HandleHit(GameObject target)
+    {
+        // Ігноруємо власника (щоб не вбити самого себе при стрільбі)
+        if (owner != null && target == owner) return;
+
+        EnemyBase enemy = target.GetComponent<EnemyBase>();
+
         if (enemy != null)
         {
             // 1. Завдаємо шкоди
             enemy.TakeDamage(damage, owner);
 
             // 2. Відштовхуємо ворога
-            Rigidbody enemyRb = other.GetComponent<Rigidbody>();
+            Rigidbody enemyRb = target.GetComponent<Rigidbody>();
             if (enemyRb != null)
             {
-                // Відштовхуємо в напрямку польоту кулі
-                enemyRb.AddForce(transform.forward * knockbackForce, ForceMode.Impulse);
+                // Напрямок: Куди летить куля (transform.forward) + трохи вгору
+                Vector3 knockbackDir = transform.forward + (Vector3.up * 0.2f);
+
+                // Скидаємо швидкість ворога перед ударом, щоб імпульс був чітким
+                if (!enemyRb.isKinematic)
+                {
+                    enemyRb.linearVelocity = Vector3.zero;
+                    enemyRb.AddForce(knockbackDir.normalized * knockbackForce, ForceMode.Impulse);
+                }
             }
 
-            // Ефект вибуху можна додати тут (Instantiate particle...)
+            // Тут можна додати ефект вибуху (Spawn Particle)
+            Debug.Log($"Куля влучила в {target.name} і відштовхнула його!");
 
             ReturnToPool();
         }
-        else if (!other.isTrigger)
+        else
         {
-            ReturnToPool();
+            // Якщо влучили в стіну/землю (і це не тригер-зона, а твердий об'єкт)
+            // Перевіряємо, чи це не сам гравець (на всяк випадок)
+            if (target != owner && !target.CompareTag("Player"))
+            {
+                ReturnToPool();
+            }
         }
     }
 

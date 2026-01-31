@@ -1548,27 +1548,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dfaf35d66ee9404e9b353171f147201, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  characterController: {fileID: 1646607124}
+  audioSource: {fileID: 1646607126}
+  mouseSensitivity: 100
+  playerCamera: {fileID: 1715525720}
+  menuController: {fileID: 455429058}
   jumpHeight: 5
   gravity: -20
   useGravity: 1
+  velocity: {x: 0, y: 0, z: 0}
+  shamanSpeed: 3
   shamanOrbSpeed: 20
   shamanOrbDamage: 40
   shamanOrbKnockback: 10
-  dashDamage: 100
+  shamanAttackSound: {fileID: 0}
+  boarSpeed: 5
+  boarDashForce: 30
+  boarDashDamage: 50
+  boarKnockbackForce: 50
+  boarAttackSound: {fileID: 0}
+  gorillaSpeed: 6
   firePoint: {fileID: 1542081045}
-  bananaSpeed: 15
+  bananaSpeed: 30
   bananaDamage: 25
+  gorillaAttackSound: {fileID: 0}
+  birdSpeed: 20
+  birdHoverHeight: 2
   birdDamage: 20
   birdKnockbackForce: 15
+  birdAttackSound: {fileID: 0}
+  bunnySpeed: 8
+  bunnyHighJump: 5
   bunnyStompDamage: 50
   bunnyBounceForce: 8
-  mouseSensitivity: 100
-  playerCamera: {fileID: 1715525720}
-  GetDamageSound: {fileID: 0}
-  DialDamagepSound: {fileID: 0}
-  audioSource: {fileID: 1646607126}
-  menuController: {fileID: 455429058}
-  characterController: {fileID: 1646607124}
+  bunnyAttackSound: {fileID: 0}
 --- !u!143 &1646607124
 CharacterController:
   m_ObjectHideFlags: 0
