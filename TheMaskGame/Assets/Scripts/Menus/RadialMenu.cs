@@ -35,12 +35,22 @@ public class RadialMenu : MonoBehaviour
 
     public void Toggle()
     {
-        if (_isOpen) Close();
-        else Open();
+        if (_isOpen)
+        {
+            Close();
+        }
+        else
+        {
+            Open();
+        }
+
+            Cursor.lockState = CursorLockMode.None; // Відкриваємо курсор
     }
 
     public void Open()
     {
+        playerController.ShowCursor(); // Показуємо курсор при відкритті меню
+
         _isOpen = true;
 
         // Фільтруємо лише розблоковані режими
@@ -61,6 +71,7 @@ public class RadialMenu : MonoBehaviour
             // Налаштовуємо вигляд
             entry.SetLabel(unlockedOptions[i].Name);
             entry.SetIcon(unlockedOptions[i].Icon);
+            entry.SetBacker(unlockedOptions[i].Backer); 
 
             // Прив'язуємо дані до кнопки (щоб ми знали, що це за режим при кліку)
             // Ми використовуємо замикання (closure), щоб передати конкретну опцію
@@ -70,11 +81,14 @@ public class RadialMenu : MonoBehaviour
             _activeEntries.Add(entry);
         }
 
+
+
         Rearrange();
     }
 
     public void Close()
     {
+        playerController.HideCursor(); // Ховаємо курсор при закритті меню
         _isOpen = false;
 
         foreach (var entry in _activeEntries)
@@ -161,6 +175,11 @@ public class RadialMenu : MonoBehaviour
             case AnimalType.Gorilla:
                 Debug.Log("Switching to Gorilla");
                 playerController.SetState(new GorillaState(playerController));
+                break;
+
+            case AnimalType.Shanaman:
+                Debug.Log("Switching to Shanaman");
+                playerController.SetState(new ShamanState(playerController));
                 break;
         }
     }

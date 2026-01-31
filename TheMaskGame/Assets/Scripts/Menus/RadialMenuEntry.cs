@@ -14,6 +14,9 @@ public class RadialMenuEntry : MonoBehaviour, IPointerClickHandler, IPointerEnte
     [SerializeField]
     RawImage Icon;
 
+    [SerializeField]
+    RawImage Backer;
+
     RectTransform Rect;
     RadialMenuEntryDelegate Callback;
 
@@ -32,6 +35,11 @@ public class RadialMenuEntry : MonoBehaviour, IPointerClickHandler, IPointerEnte
     public void SetIcon(Texture icon)
     {
         Icon.texture = icon;
+    }
+
+    public void SetBacker(Texture backer)
+    {
+        Backer.texture = backer;
     }
 
     public Texture GetIcon()

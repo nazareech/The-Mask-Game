@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class BunnyState : PlayerState
 {
@@ -7,5 +8,12 @@ public class BunnyState : PlayerState
     public override void Exit() { controller.jumpHeight = 2f; }
 
     public override void Update() { controller.StandardMovement(8f); }
-    public override void Ability() { /* Стрибок обробляється у StandardMovement */ }
-}
+    public override void Ability()
+    {
+        if (Keyboard.current.spaceKey.wasPressedThisFrame)
+        {
+            controller.BunnyJump(10f);
+        }
+    }
+
+    }

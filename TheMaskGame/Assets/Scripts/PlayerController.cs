@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
-
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,35 +12,32 @@ public class PlayerController : MonoBehaviour
     public bool useGravity = true;
     private Vector3 velocity;
 
+    [Header("Бойові Налаштування")] // 
+    public float dashDamage = 100f;  // Урон від ривка кабана
+    private bool isDashing = false; // Чи відбувається зараз ривок
+
+    [Header("Атака Горили")]
+    public Transform firePoint; // Створіть пустий об'єкт перед гравцем, звідки вилітатиме банан
+    public float bananaSpeed = 15f;
+    public float bananaDamage = 25f;
+
     [Header("Налаштування миші")]
     public float mouseSensitivity = 100f;
     public GameObject playerCamera; // Сюди перетягніть камеру в інспекторі
-    private float xRotation = 0f;
-    private Transform cameraTransform;
-    private Camera cameraComponent;
+
 
     // Посилання на ваше меню (зверніть увагу на назву класу, у вас було RedialMenu)
     [SerializeField]
     RadialMenu menuController;
 
     public CharacterController characterController;
-    
-    private int cameraSelected = 0;
-    [SerializeField]
-    private GameObject[] cameras;
 
     void Start()
     {
-        SetCamera(cameraSelected); // Встановлюємо початкову камеру
-
-        //// Курсор зникає та фіксується в центрі екрана
-        //Cursor.lockState = CursorLockMode.Locked;
-
-        cameraTransform = playerCamera.GetComponent<Transform>();
-        cameraComponent = playerCamera.GetComponent<Camera>();
+        HideCursor(); // Ховаємо курсор на початку гри
 
         characterController = GetComponent<CharacterController>();
-        SetState(new BoarState(this)); // Початковий стан
+        SetState(new ShamanState(this)); // Початковий стан
     }
 
     public void ResetVelocity()
@@ -49,26 +46,8 @@ public class PlayerController : MonoBehaviour
     }
 
     void Update()
-    {
-
-        if (cameraSelected == 1)
-        {
-            Vector3 targetPoint = GetMousePoint();
-            // РАСЧЕТ НАПРАВЛЕНИЯ ОТ ТОРСА (transform.position)
-            Vector3 direction = targetPoint - transform.position;
-            direction.y = 0; // Игнорируем высоту
-
-            if (direction.sqrMagnitude > 0.01f)
-            {
-                // Обертаємо Spine (верхню частину)
-                HandleMouseLook(direction);
-            }
-        }
-        else
-        {
-            HandleMouseLook(); // Додаємо метод для огляду
-        }
-
+    { 
+        /*
         // 1 - Кабан
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
@@ -91,77 +70,31 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Current state is: Gorilla");
             SetState(new GorillaState(this));
         }
+        */
 
-        if(Keyboard.current[Key.T].wasPressedThisFrame)
-        {
-            cameraSelected = (cameraSelected + 1) % cameras.Length;
-            SetCamera(cameraSelected);
-        }
 
         if (Keyboard.current.tabKey.wasPressedThisFrame)
         {
             menuController.Toggle();
         }
 
-            currentState.Update();
+        currentState.Update();
         currentState.Ability();
         ApplyGravity();
     }
 
-    private void SetCamera(int currentCameraIndex)
+    public void ShowCursor()
     {
-        for (int i = 0; i < cameras.Length; i++)
-        {
-            // Камера вмикається, тільки якщо її індекс збігається з обраним
-            cameras[i].SetActive(i == currentCameraIndex);
-        }
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None; // Звільняє курсор
     }
 
-    //============Top View Camera=====================
-    // функция для считування позиції мишки
-    Vector3 GetMousePoint()
+    // Викликайте це, коли закриваєте меню і повертаєтесь до гри
+    public void HideCursor()
     {
-      
-        Vector2 mousePos = Mouse.current.position.ReadValue();
-        Ray ray = cameraComponent.ScreenPointToRay(mousePos);
-        // Створюємо площину на рівні ніг персонажа
-        Plane groundPlane = new Plane(Vector3.up, transform.position);
-
-        if (groundPlane.Raycast(ray, out float hitDist))
-        {
-            return ray.GetPoint(hitDist);
-        }
-        return transform.position + transform.forward; // Повертаємо точку попереду, щоб не було нульового вектора
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked; // Блокує курсор
     }
-    private void HandleMouseLook(Vector3 direction)
-    {
-        Quaternion diseredRotation = Quaternion.LookRotation(direction);
-        // 15f - це швидкість повороту, можна винести в налаштування
-        transform.rotation = Quaternion.Slerp(transform.rotation, diseredRotation, Time.deltaTime * 15f);
-    }
-    //================================================
-
-    //============Third View Camera===================
-    private void HandleMouseLook()
-    {
-        // Отримуємо рух миші з нової системи Input System
-        Vector2 mouseDelta = Mouse.current.delta.ReadValue();
-
-        float mouseX = mouseDelta.x * mouseSensitivity * Time.deltaTime;
-        float mouseY = mouseDelta.y * mouseSensitivity * Time.deltaTime;
-
-        // Повертаємо тіло персонажа вліво-вправо
-        transform.Rotate(Vector3.up * mouseX);
-
-        // Розраховуємо нахил камери вгору-вниз
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f); // Обмежуємо огляд, щоб не "провернути" голову
-
-        // Призначаємо обертання камері
-        cameraTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-    }
-    //================================================
-
 
     public void SetState(PlayerState newState)
     {
@@ -178,17 +111,64 @@ public class PlayerController : MonoBehaviour
                        transform.forward * (k.wKey.isPressed ? 1 : k.sKey.isPressed ? -1 : 0);
         characterController.Move(move * speed * Time.deltaTime);
 
-        if (k.spaceKey.wasPressedThisFrame && Physics.Raycast(transform.position, Vector3.down, 1.1f))
+    }
+
+    public void BunnyJump(float jaumpHeight)
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, 1.1f))
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
     }
 
-    public void Dash(float force) { characterController.Move(transform.forward * force); }
+    public void Dash(float force) 
+    {
+        // Вмикаємо режим атаки
+        if (!isDashing)
+        {
+            StartCoroutine(DashRoutine(force));
+        }
+    }
+    private IEnumerator DashRoutine(float force)
+    {
+        isDashing = true; // Вмикаємо "хітбокс"
+
+        // Виконуємо рух
+        characterController.Move(transform.forward * force);
+
+        // Чекаємо зовсім трохи, щоб фізика встигла зарахувати зіткнення
+        // (0.2 секунди "активного" стану тарана)
+        yield return new WaitForSeconds(0.2f);
+
+        isDashing = false; // Вимикаємо "хітбокс"
+    }
     public void Fly(float ySpeed) {
         characterController.Move(Vector3.up * ySpeed * Time.deltaTime);
         velocity.y = 0; 
     }
 
-    public void ThrowBanana() { Debug.Log("Кинув банан!"); }
+    public void ThrowBanana() 
+    {
+        if (BananaPool.Instance == null)
+        {
+            Debug.LogError("BananaPool не знайдено на сцені!");
+            return;
+        }
+
+        // Визначаємо точку спавну (якщо firePoint не задано, кидаємо з центру гравця + трохи вперед)
+        Vector3 spawnPos = firePoint != null ? firePoint.position : transform.position + transform.forward + Vector3.up;
+        Quaternion spawnRot = transform.rotation; // Банан летить туди, куди дивиться гравець
+
+        // Дістаємо банан з пулу
+        GameObject banana = BananaPool.Instance.GetBanana(spawnPos, spawnRot);
+
+        // Налаштовуємо його параметри
+        BananaScript script = banana.GetComponent<BananaScript>();
+        if (script != null)
+        {
+            script.Setup(bananaSpeed, bananaDamage, this.gameObject);
+        }
+    }
+
+    public void StaffAttack() { Debug.Log("Атакував посохом!"); }
 
     private void ApplyGravity()
     {
@@ -208,25 +188,33 @@ public class PlayerController : MonoBehaviour
     // Вбудований метод Unity, який спрацьовує, коли колайдер входить в тригер
     private void OnTriggerEnter(Collider other)
     {
-        // Перевіряємо, чи об'єкт, в який ми увійшли, має компонент AbilityPickup
+        // 1. Логіка підбору здібностей (ваша стара)
         AbilityPickup item = other.GetComponent<AbilityPickup>();
-
         if (item != null)
         {
-            // 1. Розблоковуємо здібність в меню
-            if (menuController != null)
-            {
-                menuController.UnlockMode(item.typeToUnlock);
-            }
-
-            // 2. (Опціонально) Створюємо ефект зникнення
-            if (item.pickupEffect != null)
-            {
-                Instantiate(item.pickupEffect, other.transform.position, Quaternion.identity);
-            }
-
-            // 3. Знищуємо предмет зі сцени
+            if (menuController != null) menuController.UnlockMode(item.typeToUnlock);
+            if (item.pickupEffect != null) Instantiate(item.pickupEffect, other.transform.position, Quaternion.identity);
             Destroy(other.gameObject);
         }
+
+        // 2. NEW: Логіка атаки кабана (якщо це ворог і ми в ривку)
+        if (isDashing)
+        {
+            // Шукаємо компонент EnemyBase на об'єкті, в який врізалися
+            EnemyBase enemy = other.GetComponent<EnemyBase>();
+
+            if (enemy != null)
+            {
+                Debug.Log($"Врізалися в ворога {enemy.name} під час ривка! Здоров'я ворога: {enemy.GetCurrentEnemyHealth()}");
+                enemy.TakeDamage(dashDamage, this.gameObject);
+
+                // Опціонально: Можна додати ефект відштовхування або звуку удару тут
+            }
+        }
+    }
+
+    public void AddCoins(float directMoney)
+    {
+        Debug.Log($"Додано {directMoney} монет гравцю.");
     }
 }

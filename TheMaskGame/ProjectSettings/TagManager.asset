@@ -10,6 +10,8 @@ TagManager:
   - BunnyMask
   - ColibryMask
   - GorillaMask
+  - Enemy
+  - Banana
   layers:
   - Default
   - TransparentFX
