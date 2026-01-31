@@ -6,6 +6,10 @@ TagManager:
   tags:
   - ThirdPerson
   - TopView
+  - BoarMask
+  - BunnyMask
+  - ColibryMask
+  - GorillaMask
   layers:
   - Default
   - TransparentFX

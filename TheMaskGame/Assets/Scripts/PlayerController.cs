@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
+
 public class PlayerController : MonoBehaviour
 {
     private PlayerState currentState;
@@ -17,6 +18,10 @@ public class PlayerController : MonoBehaviour
     private float xRotation = 0f;
     private Transform cameraTransform;
     private Camera cameraComponent;
+
+    // Посилання на ваше меню (зверніть увагу на назву класу, у вас було RedialMenu)
+    [SerializeField]
+    RadialMenu menuController;
 
     public CharacterController characterController;
     
@@ -93,7 +98,12 @@ public class PlayerController : MonoBehaviour
             SetCamera(cameraSelected);
         }
 
-        currentState.Update();
+        if (Keyboard.current.tabKey.wasPressedThisFrame)
+        {
+            menuController.Toggle();
+        }
+
+            currentState.Update();
         currentState.Ability();
         ApplyGravity();
     }
@@ -193,5 +203,30 @@ public class PlayerController : MonoBehaviour
             velocity.y = 0;
         }
         characterController.Move(velocity * Time.deltaTime);
+    }
+
+    // Вбудований метод Unity, який спрацьовує, коли колайдер входить в тригер
+    private void OnTriggerEnter(Collider other)
+    {
+        // Перевіряємо, чи об'єкт, в який ми увійшли, має компонент AbilityPickup
+        AbilityPickup item = other.GetComponent<AbilityPickup>();
+
+        if (item != null)
+        {
+            // 1. Розблоковуємо здібність в меню
+            if (menuController != null)
+            {
+                menuController.UnlockMode(item.typeToUnlock);
+            }
+
+            // 2. (Опціонально) Створюємо ефект зникнення
+            if (item.pickupEffect != null)
+            {
+                Instantiate(item.pickupEffect, other.transform.position, Quaternion.identity);
+            }
+
+            // 3. Знищуємо предмет зі сцени
+            Destroy(other.gameObject);
+        }
     }
 }
