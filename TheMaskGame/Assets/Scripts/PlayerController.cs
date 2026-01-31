@@ -13,15 +13,26 @@ public class PlayerController : MonoBehaviour
 
     [Header("Налаштування миші")]
     public float mouseSensitivity = 100f;
-    public Transform playerCamera; // Сюди перетягніть камеру в інспекторі
+    public GameObject playerCamera; // Сюди перетягніть камеру в інспекторі
     private float xRotation = 0f;
+    private Transform cameraTransform;
+    private Camera cameraComponent;
 
     public CharacterController characterController;
+    
+    private int cameraSelected = 0;
+    [SerializeField]
+    private GameObject[] cameras;
 
     void Start()
     {
-        // Курсор зникає та фіксується в центрі екрана
-        Cursor.lockState = CursorLockMode.Locked;
+        SetCamera(cameraSelected); // Встановлюємо початкову камеру
+
+        //// Курсор зникає та фіксується в центрі екрана
+        //Cursor.lockState = CursorLockMode.Locked;
+
+        cameraTransform = playerCamera.GetComponent<Transform>();
+        cameraComponent = playerCamera.GetComponent<Camera>();
 
         characterController = GetComponent<CharacterController>();
         SetState(new BoarState(this)); // Початковий стан
@@ -34,7 +45,24 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        HandleMouseLook(); // Додаємо метод для огляду
+
+        if (cameraSelected == 1)
+        {
+            Vector3 targetPoint = GetMousePoint();
+            // РАСЧЕТ НАПРАВЛЕНИЯ ОТ ТОРСА (transform.position)
+            Vector3 direction = targetPoint - transform.position;
+            direction.y = 0; // Игнорируем высоту
+
+            if (direction.sqrMagnitude > 0.01f)
+            {
+                // Обертаємо Spine (верхню частину)
+                HandleMouseLook(direction);
+            }
+        }
+        else
+        {
+            HandleMouseLook(); // Додаємо метод для огляду
+        }
 
         // 1 - Кабан
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
@@ -59,11 +87,51 @@ public class PlayerController : MonoBehaviour
             SetState(new GorillaState(this));
         }
 
+        if(Keyboard.current[Key.T].wasPressedThisFrame)
+        {
+            cameraSelected = (cameraSelected + 1) % cameras.Length;
+            SetCamera(cameraSelected);
+        }
+
         currentState.Update();
         currentState.Ability();
         ApplyGravity();
     }
 
+    private void SetCamera(int currentCameraIndex)
+    {
+        for (int i = 0; i < cameras.Length; i++)
+        {
+            // Камера вмикається, тільки якщо її індекс збігається з обраним
+            cameras[i].SetActive(i == currentCameraIndex);
+        }
+    }
+
+    //============Top View Camera=====================
+    // функция для считування позиції мишки
+    Vector3 GetMousePoint()
+    {
+      
+        Vector2 mousePos = Mouse.current.position.ReadValue();
+        Ray ray = cameraComponent.ScreenPointToRay(mousePos);
+        // Створюємо площину на рівні ніг персонажа
+        Plane groundPlane = new Plane(Vector3.up, transform.position);
+
+        if (groundPlane.Raycast(ray, out float hitDist))
+        {
+            return ray.GetPoint(hitDist);
+        }
+        return transform.position + transform.forward; // Повертаємо точку попереду, щоб не було нульового вектора
+    }
+    private void HandleMouseLook(Vector3 direction)
+    {
+        Quaternion diseredRotation = Quaternion.LookRotation(direction);
+        // 15f - це швидкість повороту, можна винести в налаштування
+        transform.rotation = Quaternion.Slerp(transform.rotation, diseredRotation, Time.deltaTime * 15f);
+    }
+    //================================================
+
+    //============Third View Camera===================
     private void HandleMouseLook()
     {
         // Отримуємо рух миші з нової системи Input System
@@ -80,8 +148,10 @@ public class PlayerController : MonoBehaviour
         xRotation = Mathf.Clamp(xRotation, -90f, 90f); // Обмежуємо огляд, щоб не "провернути" голову
 
         // Призначаємо обертання камері
-        playerCamera.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        cameraTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
     }
+    //================================================
+
 
     public void SetState(PlayerState newState)
     {
