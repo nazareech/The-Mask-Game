@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.InputSystem;
-using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,25 +13,51 @@ public class PlayerController : MonoBehaviour
     public bool useGravity = true;
     private Vector3 velocity;
 
+    //-------Шаман-------//
+    [Header("Атака Шамана")]
+    public float shamanOrbSpeed = 20f;      // Швидкість кулі
+    public float shamanOrbDamage = 40f;     // Урон кулі
+    public float shamanOrbKnockback = 10f;  // Сила відштовхування
+
+    //-------Кабан-------//
     [Header("Бойові Налаштування")] // 
     public float dashDamage = 100f;  // Урон від ривка кабана
     private bool isDashing = false; // Чи відбувається зараз ривок
 
+    //-------Горила-------//
     [Header("Атака Горили")]
     public Transform firePoint; // Створіть пустий об'єкт перед гравцем, звідки вилітатиме банан
     public float bananaSpeed = 15f;
     public float bananaDamage = 25f;
+
+    //-------Колібрі------//
+    [Header("Атака Колібрі")]
+    public float birdDamage = 20f;        // Шкода від зіткнення
+    public float birdKnockbackForce = 15f; // Сила відкидування
+
+    //-----Кролик-------//
+    [Header("Атака Кролика")]
+    public float bunnyStompDamage = 50f; // Урон від стрибка на голову
+    public float bunnyBounceForce = 8f;  // Сила відскоку після удару
+    // ----------------//
 
     [Header("Налаштування миші")]
     public float mouseSensitivity = 100f;
     public GameObject playerCamera; // Сюди перетягніть камеру в інспекторі
 
 
+    [Header("Audio Effects")]
+    public AudioClip GetDamageSound;
+    public AudioClip DialDamagepSound;
+    public AudioSource audioSource;
+
     // Посилання на ваше меню (зверніть увагу на назву класу, у вас було RedialMenu)
     [SerializeField]
     RadialMenu menuController;
 
     public CharacterController characterController;
+
+    private float CoinCount = 0f;
 
     void Start()
     {
@@ -168,7 +195,28 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void StaffAttack() { Debug.Log("Атакував посохом!"); }
+    // Cтрільба Шамана 
+    public void ShootShamanOrb()
+    {
+        if (ShamanOrbPool.Instance == null)
+        {
+            Debug.LogError("ShamanOrbPool не знайдено на сцені!");
+            return;
+        }
+
+        // Використовуємо ту саму firePoint, що і для банана, або позицію гравця
+        Vector3 spawnPos = firePoint != null ? firePoint.position : transform.position + transform.forward + Vector3.up;
+
+        // Дістаємо кулю з пулу
+        GameObject orb = ShamanOrbPool.Instance.GetOrb(spawnPos, transform.rotation);
+
+        // Налаштовуємо швидкість, урон та відкидування
+        ShamanOrbScript script = orb.GetComponent<ShamanOrbScript>();
+        if (script != null)
+        {
+            script.Setup(shamanOrbSpeed, shamanOrbDamage, shamanOrbKnockback, this.gameObject);
+        }
+    }
 
     private void ApplyGravity()
     {
@@ -185,10 +233,75 @@ public class PlayerController : MonoBehaviour
         characterController.Move(velocity * Time.deltaTime);
     }
 
+    private void TryBunnyAttack(GameObject otherGameObject)
+    {
+        // 1. Перевіряємо чи ми Кролик
+        if (currentState is BunnyState)
+        {
+            // 2. Перевіряємо чи ми падаємо (velocity.y < 0)
+            // Це важливо, щоб не бити ворога, коли стрибаємо знизу-вверх крізь нього
+            if (velocity.y < 0)
+            {
+                EnemyBase enemy = otherGameObject.GetComponent<EnemyBase>();
+                if (enemy != null)
+                {
+                    // 3. Перевіряємо чи гравець вище за ворога
+                    // (Додаємо 0.5f для похибки, щоб спрацювало навіть якщо ми трохи опустились)
+                    if (transform.position.y > otherGameObject.transform.position.y)
+                    {
+                        Debug.Log("Кролик розчавив ворога!");
+                        enemy.TakeDamage(bunnyStompDamage, this.gameObject);
+
+                        // 4. Ефект відскоку (як в Маріо)
+                        // Підкидаємо гравця трохи вгору
+                        velocity.y = Mathf.Sqrt(bunnyBounceForce * -2f * gravity);
+
+                        // Звук удару
+                        PlaySound(false);
+                    }
+                }
+            }
+        }
+    }
+
+    private void TryBirdAttack(GameObject otherGameObject)
+    {
+        // Перевіряємо, чи ми зараз Птах
+        if (currentState is BirdState)
+        {
+            EnemyBase enemy = otherGameObject.GetComponent<EnemyBase>();
+
+            if (enemy != null)
+            {
+                // Перевірка: чи ворог перед нами?
+                // Беремо вектор від гравця до ворога
+                Vector3 directionToEnemy = (otherGameObject.transform.position - transform.position).normalized;
+
+                // Dot Product повертає > 0, якщо ворог попереду, < 0, якщо позаду
+                if (Vector3.Dot(transform.forward, directionToEnemy) > 0.3f)
+                {
+                    Debug.Log("Птах клюнув ворога!");
+
+                    // 1. Завдаємо шкоди
+                    enemy.TakeDamage(birdDamage, this.gameObject);
+
+                    // 2. Відкидаємо (Knockback)
+                    // Для цього на ворозі має бути Rigidbody або ваша власна система knockback в EnemyBase
+                    Rigidbody enemyRb = otherGameObject.GetComponent<Rigidbody>();
+                    if (enemyRb != null)
+                    {
+                        // Відкидаємо в напрямку погляду птаха + трохи вгору
+                        Vector3 knockbackDir = transform.forward + Vector3.up * 0.2f;
+                        enemyRb.AddForce(knockbackDir.normalized * birdKnockbackForce, ForceMode.Impulse);
+                    }
+                }
+            }
+        }
+    }
+
     // Вбудований метод Unity, який спрацьовує, коли колайдер входить в тригер
     private void OnTriggerEnter(Collider other)
     {
-        // 1. Логіка підбору здібностей (ваша стара)
         AbilityPickup item = other.GetComponent<AbilityPickup>();
         if (item != null)
         {
@@ -197,7 +310,7 @@ public class PlayerController : MonoBehaviour
             Destroy(other.gameObject);
         }
 
-        // 2. NEW: Логіка атаки кабана (якщо це ворог і ми в ривку)
+        // Логіка атаки кабана
         if (isDashing)
         {
             // Шукаємо компонент EnemyBase на об'єкті, в який врізалися
@@ -211,10 +324,48 @@ public class PlayerController : MonoBehaviour
                 // Опціонально: Можна додати ефект відштовхування або звуку удару тут
             }
         }
+        // Логіка Птаха
+        TryBirdAttack(other.gameObject);
+
+        // Логіка Кролика
+        TryBunnyAttack(other.gameObject);
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        // Логіка Птаха (якщо ворог твердий)
+        TryBirdAttack(hit.gameObject);
+
+        // Додаємо перевірку для Кролика
+        // Це основний метод для CharacterController при приземленні на щось тверде
+        TryBunnyAttack(hit.gameObject);
+    }
+
+    private void PlaySound(bool isDealDamage)
+    {
+        if (audioSource != null && GetDamageSound != null && DialDamagepSound != null)
+        {
+            if (isDealDamage)
+            {
+                audioSource.pitch = Random.Range(0.9f, 1.1f);
+                float randomVolume = Random.Range(0.8f, 1.0f);
+                audioSource.PlayOneShot(GetDamageSound, randomVolume);
+            }
+            else
+            {
+                audioSource.pitch = Random.Range(0.9f, 1.1f);
+                float randomVolume = Random.Range(0.8f, 1.0f);
+                audioSource.PlayOneShot(DialDamagepSound, randomVolume);
+
+            }
+        }
     }
 
     public void AddCoins(float directMoney)
     {
         Debug.Log($"Додано {directMoney} монет гравцю.");
+        CoinCount += directMoney;
     }
+
+    public float GetCoinCount(){return CoinCount;}
 }

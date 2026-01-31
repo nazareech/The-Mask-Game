@@ -420,28 +420,28 @@ MonoBehaviour:
   playerController: {fileID: 1646607123}
   AllOptions:
   - Name: Shaman
-    Icon: {fileID: 2800000, guid: 2ca7ba75ee6662949980dbfee2be433a, type: 3}
-    Backer: {fileID: 2800000, guid: 975cbfdab6dd57344b4842e9c27b6cfd, type: 3}
+    Icon: {fileID: 2800000, guid: 6bc3cc7c56c5ae547ad338dc6b935671, type: 3}
+    Backer: {fileID: 2800000, guid: 9af82629bc06022419a9ba111105c1e6, type: 3}
     Type: 0
     IsUnlocked: 1
   - Name: Boar
     Icon: {fileID: 2800000, guid: ceb211f19fafb124dacc081a3452d93b, type: 3}
-    Backer: {fileID: 2800000, guid: 975cbfdab6dd57344b4842e9c27b6cfd, type: 3}
+    Backer: {fileID: 2800000, guid: 9af82629bc06022419a9ba111105c1e6, type: 3}
     Type: 1
     IsUnlocked: 1
   - Name: Bunny
     Icon: {fileID: 2800000, guid: ee67bdcec30e002419f7b5d57929adc2, type: 3}
-    Backer: {fileID: 2800000, guid: 975cbfdab6dd57344b4842e9c27b6cfd, type: 3}
+    Backer: {fileID: 2800000, guid: 9af82629bc06022419a9ba111105c1e6, type: 3}
     Type: 2
     IsUnlocked: 1
   - Name: Colibry
     Icon: {fileID: 2800000, guid: dc979debfc278e146afd72739ad52b02, type: 3}
-    Backer: {fileID: 2800000, guid: 975cbfdab6dd57344b4842e9c27b6cfd, type: 3}
+    Backer: {fileID: 2800000, guid: 9af82629bc06022419a9ba111105c1e6, type: 3}
     Type: 3
     IsUnlocked: 1
   - Name: Gorila
-    Icon: {fileID: 2800000, guid: 2ca7ba75ee6662949980dbfee2be433a, type: 3}
-    Backer: {fileID: 2800000, guid: 975cbfdab6dd57344b4842e9c27b6cfd, type: 3}
+    Icon: {fileID: 2800000, guid: edd59cd907ddc23458a8be668e59817e, type: 3}
+    Backer: {fileID: 2800000, guid: 9af82629bc06022419a9ba111105c1e6, type: 3}
     Type: 4
     IsUnlocked: 1
   Icons:
@@ -590,6 +590,7 @@ GameObject:
   - component: {fileID: 738351804}
   - component: {fileID: 738351807}
   - component: {fileID: 738351808}
+  - component: {fileID: 738351809}
   m_Layer: 0
   m_Name: Pool Manager
   m_TagString: Untagged
@@ -641,7 +642,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66c232cfbbf5b1f4e8950fcf934cdd0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
-  enemiesToSpawn: 1
+  enemiesToSpawn: 10
   spawnRadius: 50
 --- !u!114 &738351806
 MonoBehaviour:
@@ -768,6 +769,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BananaPool
   bananaPrefab: {fileID: 2260531839770549662, guid: e4cc2080fffc2a54fa21589b6f2ff516, type: 3}
   poolSize: 20
+--- !u!114 &738351809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738351802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1626b240c89ffde41aef26ced85b7cce, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShamanOrbPool
+  orbPrefab: {fileID: 2100752343715339967, guid: 16a988fee21cd644c9e2685b6c34e410, type: 3}
+  poolSize: 10
 --- !u!1 &770455847
 GameObject:
   m_ObjectHideFlags: 0
@@ -1417,6 +1432,7 @@ GameObject:
   - component: {fileID: 1646607125}
   - component: {fileID: 1646607123}
   - component: {fileID: 1646607124}
+  - component: {fileID: 1646607126}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1532,15 +1548,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dfaf35d66ee9404e9b353171f147201, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  jumpHeight: 2
-  gravity: -9.81
+  jumpHeight: 5
+  gravity: -20
   useGravity: 1
+  shamanOrbSpeed: 20
+  shamanOrbDamage: 40
+  shamanOrbKnockback: 10
   dashDamage: 100
   firePoint: {fileID: 1542081045}
   bananaSpeed: 15
   bananaDamage: 25
+  birdDamage: 20
+  birdKnockbackForce: 15
+  bunnyStompDamage: 50
+  bunnyBounceForce: 8
   mouseSensitivity: 100
   playerCamera: {fileID: 1715525720}
+  GetDamageSound: {fileID: 0}
+  DialDamagepSound: {fileID: 0}
+  audioSource: {fileID: 1646607126}
   menuController: {fileID: 455429058}
   characterController: {fileID: 1646607124}
 --- !u!143 &1646607124
@@ -1582,6 +1608,103 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerRotator
   cameraTransform: {fileID: 1651418284}
   turnSmoothTime: 0.1
+--- !u!82 &1646607126
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1646607117}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1651418278
 GameObject:
   m_ObjectHideFlags: 0
@@ -1730,7 +1853,7 @@ MonoBehaviour:
   Radius: 5
   Orbits:
     Top:
-      Radius: 2
+      Radius: 5
       Height: 5
     Center:
       Radius: 4
@@ -1751,7 +1874,7 @@ MonoBehaviour:
       Time: 2
     Restrictions: 0
   VerticalAxis:
-    Value: 17.5
+    Value: 20
     Center: 17.5
     Range: {x: -10, y: 45}
     Wrap: 0
@@ -1821,8 +1944,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1651418278}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.22975288, y: 3.8731577e-15, z: -8.0777286e-16, w: 0.9732491}
-  m_LocalPosition: {x: 0.5, y: 4.99, z: -3.5}
+  m_LocalRotation: {x: 0.25072014, y: -0.0000000118129835, z: 0.0000000030594742, w: 0.9680596}
+  m_LocalPosition: {x: 0.5, y: 5.294685, z: -3.6508799}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1959,8 +2082,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1715525720}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.22975291, y: 3.899797e-15, z: -9.20617e-16, w: 0.973249}
-  m_LocalPosition: {x: 0.5, y: 4.99, z: -3.5}
+  m_LocalRotation: {x: 0.25072014, y: -0.000000011812984, z: 0.000000003059474, w: 0.9680596}
+  m_LocalPosition: {x: 0.5, y: 5.294685, z: -3.6508799}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

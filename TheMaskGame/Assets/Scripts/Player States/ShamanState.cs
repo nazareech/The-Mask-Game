@@ -8,8 +8,11 @@ public class ShamanState : PlayerState
 
     public override void Ability()
     {
-        if (Keyboard.current.fKey.wasPressedThisFrame)
-            controller.StaffAttack();
+        // При натисканні F або Лівої кнопки миші
+        if (Keyboard.current.fKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            controller.ShootShamanOrb(); // Викликаємо новий метод стрільби
+        }
     }
 
     public override void Enter()

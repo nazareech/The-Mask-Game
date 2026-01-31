@@ -10,7 +10,7 @@ public class GorillaState : PlayerState
     public override void Update() { controller.StandardMovement(6f); }
     public override void Ability()
     {
-        if (Keyboard.current.fKey.wasPressedThisFrame)
+        if (Keyboard.current.fKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame)
             controller.ThrowBanana();
     }
 }
