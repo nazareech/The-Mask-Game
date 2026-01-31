@@ -1,39 +1,9 @@
 fileFormatVersion: 2
-guid: 8c52f579335e7f341835e7582338ff69
+guid: ed3de752d2f6a614290a24b90f6cb07d
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Colums Material
-    second: {fileID: 2100000, guid: f029317db8412bd4eb6f32385f406a88, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Crystal 1
-    second: {fileID: 2100000, guid: 7b733e3f18f7f044aaffcadddb54a155, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Crystal 2
-    second: {fileID: 2100000, guid: d227d4792bbd86f478b53d8b8180e429, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Material.002
-    second: {fileID: 2100000, guid: 2a46462665da8c94a82254e85aee43bf, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Stone Material
-    second: {fileID: 2100000, guid: 6f350ce64a49ee0498db999226b4703c, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Stone Material.001
-    second: {fileID: 2100000, guid: 4490abf0062ffc1488f519c7d860fb5c, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
