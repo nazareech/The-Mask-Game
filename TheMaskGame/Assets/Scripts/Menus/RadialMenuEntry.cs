@@ -17,6 +17,8 @@ public class RadialMenuEntry : MonoBehaviour, IPointerClickHandler, IPointerEnte
     RectTransform Rect;
     RadialMenuEntryDelegate Callback;
 
+    bool _isDestroyed = false; // Прапорець, щоб знати, чи об'єкт ще живий
+
     private void Start()
     {
         Rect = Icon.GetComponent<RectTransform>();
@@ -50,7 +52,7 @@ public class RadialMenuEntry : MonoBehaviour, IPointerClickHandler, IPointerEnte
     public void OnPointerEnter(PointerEventData eventData)
     {
         // ДОДАНО: Перевірка, чи об'єкт ще існує
-        if (Rect == null) return;
+        if (_isDestroyed || Rect == null) return;
 
         Rect.DOComplete();
         Rect.DOScale(Vector3.one * 1.5f, 0.3f).SetEase(Ease.OutQuad);
@@ -59,7 +61,7 @@ public class RadialMenuEntry : MonoBehaviour, IPointerClickHandler, IPointerEnte
     public void OnPointerExit(PointerEventData eventData)
     {
         // ДОДАТИ ЦЕ
-        if (Rect == null) return;
+        if (_isDestroyed || Rect == null) return;
 
         Rect.DOComplete();
         Rect.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutQuad);
@@ -68,7 +70,10 @@ public class RadialMenuEntry : MonoBehaviour, IPointerClickHandler, IPointerEnte
     // ДОДАНО: Коли об'єкт знищується, примусово вбиваємо всі його анімації
     private void OnDestroy()
     {
+        _isDestroyed = true;
+        // Примусово вбиваємо всі анімації, пов'язані з цим об'єктом і його RectTransform
         transform.DOKill();
+        if (Rect != null) Rect.DOKill();
     }
 
 }

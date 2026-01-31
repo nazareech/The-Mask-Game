@@ -78,20 +78,27 @@ public class RadialMenu : MonoBehaviour
         _isOpen = false;
 
         foreach (var entry in _activeEntries)
-        {
+        {// Перевірка на null
             if (entry == null) continue;
 
             RectTransform rect = entry.GetComponent<RectTransform>();
             GameObject obj = entry.gameObject;
 
+            // 1. ВАЖЛИВО: Негайно зупиняємо будь-які анімації (hover/scale), що зараз грають
             rect.DOKill();
+            obj.transform.DOKill();
+
+            // 2. Запускаємо анімацію закриття
             rect.DOAnchorPos(Vector3.zero, 0.3f)
                 .SetEase(Ease.OutQuad)
                 .OnComplete(() =>
                 {
+                    // Перевіряємо ще раз перед знищенням
                     if (obj != null)
                     {
-                        obj.transform.DOKill();
+                        // Остання перевірка на вбивство твінів
+                        DOTween.Kill(obj.transform);
+                        DOTween.Kill(rect);
                         Destroy(obj);
                     }
                 });
