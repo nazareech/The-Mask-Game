@@ -3,54 +3,69 @@ using System.Collections.Generic;
 
 public class EnemyPooler : MonoBehaviour
 {
-    public GameObject enemyPrefab;
-    public int poolSize = 100;
-
-    private List<GameObject> pooledEnemies = new List<GameObject>();
-    private bool isInitialized = false;
-
-    void Start()
+    // Клас для налаштування пулу в інспекторі
+    [System.Serializable]
+    public class Pool
     {
-        if (!isInitialized) InitializePool();
+        public string tag;           // Унікальна назва (напр. "WeakEnemy", "StrongEnemy")
+        public GameObject prefab;    // Префаб
+        public int size;             // Кількість
     }
 
-    public void InitializePool()
+    [Header("Налаштування пулів")]
+    public List<Pool> pools; // Список пулів, який ви наповните в Інспекторі
+
+    public Dictionary<string, Queue<GameObject>> poolDictionary; // Словник для швидкого доступу
+
+    private void Start()
     {
-        if (isInitialized) return;
-
-        pooledEnemies = new List<GameObject>();
-        GameObject temp;
-
-        for (int i = 0; i < poolSize; i++)
-        {
-            temp = Instantiate(enemyPrefab);
-            temp.transform.SetParent(this.transform); // Тримаємо їх "дітьми" пулу для чистоти в ієрархії
-            temp.SetActive(false);
-            pooledEnemies.Add(temp);
-        }
-
-        isInitialized = true;
-        Debug.Log($"Пул ініціалізовано. {poolSize} ворогів.");
+        InitializePools();
     }
 
-    public GameObject GetPooledEnemy()
+    public void InitializePools()
     {
-        // Якщо хтось просить ворога раніше, ніж спрацював Start
-        if (!isInitialized || pooledEnemies == null)
-        {
-            InitializePool();
-        }
+        poolDictionary = new Dictionary<string, Queue<GameObject>>();
 
-        for (int i = 0; i < pooledEnemies.Count; i++)
+        foreach (Pool pool in pools)
         {
-            // Перевіряємо, чи об'єкт не знищений і чи він вимкнений
-            if (pooledEnemies[i] != null && !pooledEnemies[i].activeInHierarchy)
+            Queue<GameObject> objectPool = new Queue<GameObject>();
+
+            for (int i = 0; i < pool.size; i++)
             {
-                return pooledEnemies[i];
+                GameObject obj = Instantiate(pool.prefab);
+                obj.transform.SetParent(this.transform);
+                obj.SetActive(false);
+                objectPool.Enqueue(obj);
             }
+
+            poolDictionary.Add(pool.tag, objectPool);
+        }
+    }
+
+    // Метод тепер приймає "tag", щоб знати, кого саме діставати
+    public GameObject GetPooledEnemy(string tag)
+    {
+        if (!poolDictionary.ContainsKey(tag))
+        {
+            Debug.LogWarning($"Пул з тегом {tag} не існує!");
+            return null;
         }
 
-        // Опціонально: можна додати розширення пулу, якщо не вистачило ворогів
-        return null;
+        GameObject objectToSpawn = poolDictionary[tag].Dequeue();
+
+        // Повертаємо об'єкт в чергу (щоб використовувати по колу), 
+        // але перед цим перевіряємо, чи він не активний (якщо пул малий, це може статися)
+        // Для простоти просто додаємо його в кінець черги:
+        poolDictionary[tag].Enqueue(objectToSpawn);
+
+        // Якщо об'єкт вже активний, краще створити новий або повернути null, 
+        // але в простій версії ми просто повертаємо його і сподіваємось, що пул достатньо великий.
+        if (objectToSpawn.activeInHierarchy)
+        {
+            // Опціонально: розширити пул тут, якщо не вистачає
+            return null;
+        }
+
+        return objectToSpawn;
     }
 }

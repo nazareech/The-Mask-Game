@@ -1,32 +1,87 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyBase : MonoBehaviour
 {
+    [Header("Movement Settings")] // <--- НОВЕ: Налаштування руху
+    [SerializeField] private float moveSpeed = 3.5f; // Швидкість руху
+
     [Header("Health Settings")]
     public float maxHealth = 100f;
-
-    [Header("Damage Inflicted")]
-    private float damageInflicted = 10f;
-
-    [Header("Reward Settings")]
-    [SerializeField] private float totalReward = 100f; // Загальна нагорода
-    [Range(0, 1)]
-    [SerializeField] private float directDepositPercent = 0.3f; // 30% на рахунок, 70% на землю
-
-    // SyncVar не потрібен в одиночній грі, просто приватна змінна
     private float currentHealth;
 
-    // OnEnable ідеально підходить для об'єктів з пулу.
-    // Спрацьовує щоразу, коли ми робимо SetActive(true)
+    [Header("Combat Settings")]
+    [SerializeField] private float damageInflicted = 10f;
+    [SerializeField] private float attackInterval = 1f;
+    private float nextAttackTime = 0f;
+
+    [Header("Reward Settings")]
+    [SerializeField] private float totalReward = 100f;
+    [Range(0, 1)]
+    [SerializeField] private float directDepositPercent = 0.3f;
+
+    [Header("Components")]
+    private NavMeshAgent agent;
+    private Transform currentTarget;
+
+    private void Awake()
+    {
+        agent = GetComponent<NavMeshAgent>();
+    }
+
     void OnEnable()
     {
         currentHealth = maxHealth;
+        isDead = false;
+
+        if (agent != null)
+        {
+            agent.enabled = true;
+            agent.speed = moveSpeed; // <--- НОВЕ: Застосовуємо швидкість при активації
+        }
+
+        GetComponent<Collider>().enabled = true;
     }
 
-    // Прибираємо [Server], тепер це звичайний публічний метод
+    public void SetTarget(Transform target)
+    {
+        currentTarget = target;
+        if (agent != null && currentTarget != null)
+        {
+            agent.SetDestination(currentTarget.position);
+        }
+    }
+
+    private void Update()
+    {
+        if (agent != null && currentTarget != null && !isDead)
+        {
+            agent.SetDestination(currentTarget.position);
+        }
+    }
+
+    // --- Логіка Атаки Тотема ---
+    private void OnCollisionStay(Collision collision)
+    {
+        TotemController totem = collision.gameObject.GetComponent<TotemController>();
+
+        if (totem != null)
+        {
+            if (Time.time >= nextAttackTime)
+            {
+                totem.TakeDamage(damageInflicted);
+                nextAttackTime = Time.time + attackInterval;
+            }
+        }
+    }
+
+    // --- Логіка отримання шкоди ---
+
+    private bool isDead = false;
+
     public void TakeDamage(float damageAmount, GameObject attacker)
     {
-        if (currentHealth <= 0) return;
+        if (isDead) return;
 
         currentHealth -= damageAmount;
 
@@ -36,19 +91,20 @@ public class EnemyBase : MonoBehaviour
         }
     }
 
-    // Логіка смерті
     public void Die(GameObject attacker)
     {
-        float directMoney = totalReward * directDepositPercent; // Гроші на рахунок
-        float lootMoney = totalReward - directMoney; // Гроші, що випадають
+        if (isDead) return;
+        isDead = true;
 
-        // Нарахування грошей гравцю напряму
+        if (agent != null) agent.enabled = false;
+        GetComponent<Collider>().enabled = false;
+
+        float directMoney = totalReward * directDepositPercent;
+        float lootMoney = totalReward - directMoney;
+
         if (attacker != null)
         {
-            // Переконайтеся, що на гравці або на кулі є посилання на PlayerController
             PlayerController player = attacker.GetComponent<PlayerController>();
-
-            // Іноді "attacker" може бути кулею, тоді треба шукати власника (залежить від вашої реалізації стрільби)
             if (player == null && attacker.CompareTag("Player"))
             {
                 player = attacker.GetComponent<PlayerController>();
@@ -60,57 +116,22 @@ public class EnemyBase : MonoBehaviour
             }
         }
 
-        // Випадання луту
-        if (lootMoney > 0)
+        if (lootMoney > 0 && LootPool.Instance != null)
         {
-            if (LootPool.Instance != null)
-            {
-                // Отримуємо об'єкт з пулу (він вже активний і на позиції завдяки новому скрипту LootPool)
-                GameObject lootObj = LootPool.Instance.GetLoot(transform.position + Vector3.up, Quaternion.identity);
-
-                LootPickup lootItem = lootObj.GetComponent<LootPickup>();
-                if (lootItem != null)
-                {
-                    lootItem.SetValue(lootMoney);
-                }
-
-                // NetworkServer.Spawn тут більше не потрібен
-            }
-            else
-            {
-                Debug.LogWarning("LootPool Instance не знайдено!");
-            }
+            GameObject lootObj = LootPool.Instance.GetLoot(transform.position + Vector3.up, Quaternion.identity);
+            LootPickup lootItem = lootObj.GetComponent<LootPickup>();
+            if (lootItem != null) lootItem.SetValue(lootMoney);
         }
 
-        // Замість NetworkServer.UnSpawn просто ховаємо об'єкт
         gameObject.SetActive(false);
-
         Debug.Log($"{gameObject.name} помер.");
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Bullet"))
+        if (other.CompareTag("Banana"))
         {
-            /*
-            ScriptedBullet bullet = other.GetComponent<ScriptedBullet>();
-            if (bullet != null)
-            {
-                // Передаємо власника кулі (bullet.GetOwner()), щоб знати, кому нарахувати гроші
-                TakeDamage(bullet.GetDamage(), bullet.GetOwner());
-
-                bullet.ReturnToPool();
-            }
-            */
+            // Логіка банана
         }
-    }
-    public float GetCurrentEnemyHealth()
-    {
-        return currentHealth;
-    }
-
-    public float GetEnemyDamage()
-    {
-        return damageInflicted;
     }
 }

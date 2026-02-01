@@ -16,6 +16,7 @@ public class RadialMenuOption
 {
     public string Name;         // Назва (наприклад "Boar")
     public Texture Icon;        // Іконка
+    public Texture Backer;        // Іконка
     public AnimalType Type;     // Який це режим
     public bool IsUnlocked;     // Чи доступний цей режим зараз
 }

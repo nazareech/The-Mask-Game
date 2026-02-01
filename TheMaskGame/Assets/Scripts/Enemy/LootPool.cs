@@ -1,9 +1,9 @@
-using UnityEngine;
+п»їusing UnityEngine;
 using System.Collections.Generic;
 
 public class LootPool : MonoBehaviour
 {
-    public static LootPool Instance; // Сінглтон
+    public static LootPool Instance; // РЎС–РЅРіР»С‚РѕРЅ
 
     [Header("Settings")]
     public GameObject lootPrefab;
@@ -11,6 +11,7 @@ public class LootPool : MonoBehaviour
 
     [Header("Audio Effects")]
     public AudioClip LootDropSound;
+    public AudioClip LootPicupSound;
     public AudioSource audioSource;
 
     private Queue<GameObject> pool = new Queue<GameObject>();
@@ -20,7 +21,7 @@ public class LootPool : MonoBehaviour
         Instance = this;
     }
 
-    // Замість OnStartServer використовуємо Start
+    // Р—Р°РјС–СЃС‚СЊ OnStartServer РІРёРєРѕСЂРёСЃС‚РѕРІСѓС”РјРѕ Start
     void Start()
     {
         InitializePool();
@@ -38,7 +39,7 @@ public class LootPool : MonoBehaviour
     {
         GameObject loot = Instantiate(lootPrefab);
         loot.SetActive(false);
-        // Можна додати parent, щоб не засмічувати ієрархію
+        // РњРѕР¶РЅР° РґРѕРґР°С‚Рё parent, С‰РѕР± РЅРµ Р·Р°СЃРјС–С‡СѓРІР°С‚Рё С–С”СЂР°СЂС…С–СЋ
         loot.transform.SetParent(transform);
         pool.Enqueue(loot);
         return loot;
@@ -48,11 +49,11 @@ public class LootPool : MonoBehaviour
     {
         GameObject loot;
 
-        PlaySound(); // Викликаємо звук напряму, без RPC
+        PlaySound(false); // Р’РёРєР»РёРєР°С”РјРѕ Р·РІСѓРє РЅР°РїСЂСЏРјСѓ, Р±РµР· RPC
 
         if (pool.Count == 0)
         {
-            loot = CreateNewLootObject(); // Використовуємо той самий метод створення
+            loot = CreateNewLootObject(); // Р’РёРєРѕСЂРёСЃС‚РѕРІСѓС”РјРѕ С‚РѕР№ СЃР°РјРёР№ РјРµС‚РѕРґ СЃС‚РІРѕСЂРµРЅРЅСЏ
         }
         else
         {
@@ -62,25 +63,37 @@ public class LootPool : MonoBehaviour
         loot.transform.position = position;
         loot.transform.rotation = rotation;
 
-        loot.SetActive(true); // Просто вмикаємо об'єкт
+        loot.SetActive(true); // РџСЂРѕСЃС‚Рѕ РІРјРёРєР°С”РјРѕ РѕР±'С”РєС‚
 
         return loot;
     }
 
-    private void PlaySound()
+    private void PlaySound(bool isReturn)
     {
-        if (audioSource != null && LootDropSound != null)
+        if (audioSource != null && LootDropSound != null && LootPicupSound != null) 
         {
-            audioSource.pitch = Random.Range(0.9f, 1.1f);
-            float randomVolume = Random.Range(0.8f, 1.0f);
-            audioSource.PlayOneShot(LootDropSound, randomVolume);
+            if (isReturn)
+            {
+                audioSource.pitch = Random.Range(0.9f, 1.1f);
+                float randomVolume = Random.Range(0.8f, 1.0f);
+                audioSource.PlayOneShot(LootDropSound, randomVolume);
+            }
+            else
+            {
+                audioSource.pitch = Random.Range(0.9f, 1.1f);
+                float randomVolume = Random.Range(0.8f, 1.0f);
+                audioSource.PlayOneShot(LootPicupSound, randomVolume);
+
+            }
         }
     }
 
     public void ReturnLoot(GameObject loot)
     {
-        loot.SetActive(false); // Просто ховаємо
-        loot.transform.SetParent(transform); // Повертаємо під батьківський об'єкт (для порядку)
+        PlaySound(true);
+
+        loot.SetActive(false); // РџСЂРѕСЃС‚Рѕ С…РѕРІР°С”РјРѕ
+        loot.transform.SetParent(transform); // РџРѕРІРµСЂС‚Р°С”РјРѕ РїС–Рґ Р±Р°С‚СЊРєС–РІСЃСЊРєРёР№ РѕР±'С”РєС‚ (РґР»СЏ РїРѕСЂСЏРґРєСѓ)
         pool.Enqueue(loot);
     }
 }
