@@ -7,13 +7,17 @@ public class ShamanState : PlayerState
 
     public override void Enter()
     {
-        // Наприклад, вмикаємо візуальні ефекти шамана тут
+        // Вмикаємо модель Шамана
+        controller.SwitchModel(controller.shamanModel);
     }
     public override void Exit() { }
 
     public override void Update()
     {
         controller.StandardMovement(controller.shamanSpeed);
+        
+        // Оновлюємо анімацію бігу
+        controller.UpdateAnimationMovement();
     }
 
     public override void Ability()
@@ -28,6 +32,10 @@ public class ShamanState : PlayerState
     {
         // Відтворюємо звук
         controller.PlaySound(controller.shamanAttackSound);
+
+        // Запуск анімації атаки
+        if (controller.currentAnimator != null)
+            controller.currentAnimator.SetTrigger("Attack");
 
         if (ShamanOrbPool.Instance == null) return;
 

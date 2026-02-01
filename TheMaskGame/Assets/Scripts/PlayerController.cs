@@ -59,6 +59,17 @@ public class PlayerController : MonoBehaviour
     public float bunnyBounceForce = 8f;
     public AudioClip bunnyAttackSound; // Звук!
 
+    // --- Візуальні Моделі ---
+    [Header("Візуальні Моделі (Mesh Objects)")]
+    public GameObject shamanModel;
+    //public GameObject boarModel;
+    //public GameObject gorillaModel;
+    public GameObject birdModel;
+    //public GameObject bunnyModel;
+
+    // Поточний активний аніматор
+    [HideInInspector] public Animator currentAnimator;
+
     private void Start()
     {
         characterController = GetComponent<CharacterController>();
@@ -66,6 +77,7 @@ public class PlayerController : MonoBehaviour
 
         HideCursor();
         SetState(new ShamanState(this, menuController)); // Початковий стан
+
     }
 
     private void Update()
@@ -104,6 +116,43 @@ public class PlayerController : MonoBehaviour
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         currentState.OnControllerColliderHit(hit);
+    }
+
+    // Метод для перемикання моделей
+    public void SwitchModel(GameObject activeModel)
+    {
+        // 1. Вимикаємо всі моделі
+        shamanModel.SetActive(false);
+        //boarModel.SetActive(false);
+        //gorillaModel.SetActive(false);
+        birdModel.SetActive(false);
+       // bunnyModel.SetActive(false);
+
+        // 2. Вмикаємо потрібну
+        if (activeModel != null)
+        {
+            activeModel.SetActive(true);
+            // 3. Отримуємо аніматор з активної моделі
+            currentAnimator = activeModel.GetComponent<Animator>();
+        }
+    }
+
+    // Метод для передачі швидкості в аніматор (викликатиметься в Update станів)
+    public void UpdateAnimationMovement()
+    {
+        if (currentAnimator != null)
+        {
+            // Передаємо горизонтальну швидкість (без врахування стрибка/падіння по Y)
+            Vector3 horizontalVelocity = new Vector3(characterController.velocity.x, 0, characterController.velocity.z);
+            float speed = horizontalVelocity.magnitude;
+
+            // В аніматорі має бути параметр Float з назвою "Speed"
+            currentAnimator.SetFloat("Speed", speed);
+            currentAnimator.SetBool("IsMoving", true);
+
+            // Опціонально: чи ми на землі
+            currentAnimator.SetBool("IsGrounded", characterController.isGrounded);
+        }
     }
 
     // --- Допоміжні методи (Movement, Audio) ---
