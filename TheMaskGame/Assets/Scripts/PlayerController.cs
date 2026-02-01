@@ -148,7 +148,7 @@ public class PlayerController : MonoBehaviour
 
             // В аніматорі має бути параметр Float з назвою "Speed"
             currentAnimator.SetFloat("Speed", speed);
-            currentAnimator.SetBool("IsMoving", true);
+            currentAnimator.SetBool("IsMoving", speed > 0);
 
             // Опціонально: чи ми на землі
             currentAnimator.SetBool("IsGrounded", characterController.isGrounded);
