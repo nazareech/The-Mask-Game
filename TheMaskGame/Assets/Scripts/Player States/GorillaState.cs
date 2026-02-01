@@ -3,14 +3,14 @@ using UnityEngine.InputSystem;
 
 public class GorillaState : PlayerState
 {
-    public GorillaState(PlayerController c) : base(c) { }
+    public GorillaState(PlayerController c, RadialMenu r) : base(c, r) { }
     public override void Enter() { }
     public override void Exit() { }
     public override void Update() { controller.StandardMovement(controller.gorillaSpeed); }
 
     public override void Ability()
     {
-        if (Keyboard.current.fKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame)
+        if (Keyboard.current.fKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame && !radialMenu.IsOpen())
         {
             ThrowBanana();
         }

@@ -1,13 +1,13 @@
-using UnityEngine;
+п»їusing UnityEngine;
 using UnityEngine.InputSystem;
 
 public class ShamanState : PlayerState
 {
-    public ShamanState(PlayerController c) : base(c) { }
+    public ShamanState(PlayerController c, RadialMenu r) : base(c, r) { }
 
     public override void Enter()
     {
-        // Наприклад, вмикаємо візуальні ефекти шамана тут
+        // РќР°РїСЂРёРєР»Р°Рґ, РІРјРёРєР°С”РјРѕ РІС–Р·СѓР°Р»СЊРЅС– РµС„РµРєС‚Рё С€Р°РјР°РЅР° С‚СѓС‚
     }
     public override void Exit() { }
 
@@ -18,7 +18,7 @@ public class ShamanState : PlayerState
 
     public override void Ability()
     {
-        if (Keyboard.current.fKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame)
+        if (Keyboard.current.fKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame && !radialMenu.IsOpen())
         {
             Shoot();
         }
@@ -26,7 +26,7 @@ public class ShamanState : PlayerState
 
     private void Shoot()
     {
-        // Відтворюємо звук
+        // Р’С–РґС‚РІРѕСЂСЋС”РјРѕ Р·РІСѓРє
         controller.PlaySound(controller.shamanAttackSound);
 
         if (ShamanOrbPool.Instance == null) return;

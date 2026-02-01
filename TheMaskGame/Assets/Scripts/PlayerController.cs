@@ -65,7 +65,7 @@ public class PlayerController : MonoBehaviour
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
 
         HideCursor();
-        SetState(new ShamanState(this)); // Початковий стан
+        SetState(new ShamanState(this, menuController)); // Початковий стан
     }
 
     private void Update()

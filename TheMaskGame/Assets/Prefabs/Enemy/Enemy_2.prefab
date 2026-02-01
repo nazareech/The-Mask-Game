@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 488110643889792849}
   - component: {fileID: -4322289216422389195}
   m_Layer: 0
-  m_Name: Enemy
+  m_Name: Enemy_2
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -72,7 +72,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -905690159841262435, guid: 93ebe54327037104b92ff2de3f4933c7, type: 3}
+  - {fileID: 2100000, guid: 9da7d7c7017f2fd449503e2a962bfc95, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -120,9 +120,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ac6d276b684b2444991d65ca8286fe6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBase
+  moveSpeed: 5
   maxHealth: 100
   damageInflicted: 10
-  attackInterval: 1
+  attackInterval: 2
   totalReward: 100
   directDepositPercent: 0.3
 --- !u!136 &3348716405583920088
