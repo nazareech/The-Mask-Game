@@ -9,13 +9,26 @@ public class BirdState : PlayerState
     {
         controller.useGravity = false;
         controller.ResetVelocity();
-        // Піднімаємо персонажа вгору один раз при вході (використовуємо налаштування з контролера)
-        controller.characterController.Move(Vector3.up * controller.birdHoverHeight);
+
+        controller.SwitchModel(controller.birdModel);
+
+        // Якщо у птаха є анімація зльоту
+        if (controller.currentAnimator != null)
+            controller.currentAnimator.SetBool("IsFlying", true);
+
+        // --- ВИПРАВЛЕННЯ ПОМИЛКИ ---
+        // Перевіряємо, чи контролер взагалі активний і увімкнений, перш ніж рухати
+        if (controller.characterController.enabled && controller.gameObject.activeInHierarchy)
+        {
+            controller.characterController.Move(Vector3.up * controller.birdHoverHeight);
+        }
     }
 
     public override void Exit()
     {
         controller.useGravity = true;
+        if (controller.currentAnimator != null)
+            controller.currentAnimator.SetBool("IsFlying", false);
     }
 
     public override void Update()

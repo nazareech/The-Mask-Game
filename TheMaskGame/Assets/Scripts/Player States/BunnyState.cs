@@ -8,18 +8,27 @@ public class BunnyState : PlayerState
     public override void Enter()
     {
         controller.jumpHeight = controller.bunnyHighJump;
+        //controller.SwitchModel(controller.bunnyModel);
     }
     public override void Exit()
     {
         controller.jumpHeight = 2f; // Повертаємо стандарт
     }
 
-    public override void Update() { controller.StandardMovement(controller.bunnySpeed); }
+    public override void Update() 
+    {
+        controller.StandardMovement(controller.bunnySpeed); 
+        controller.UpdateAnimationMovement();
+    }
 
     public override void Ability()
     {
         if (Keyboard.current.spaceKey.wasPressedThisFrame && controller.characterController.isGrounded)
         {
+            // Анімація стрибка
+            if (controller.currentAnimator != null)
+                controller.currentAnimator.SetTrigger("Jump");
+
             // Формула стрибка
             controller.velocity.y = Mathf.Sqrt(controller.jumpHeight * -2f * controller.gravity);
             // Можна додати звук звичайного стрибка тут

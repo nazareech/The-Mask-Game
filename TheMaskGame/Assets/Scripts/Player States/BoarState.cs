@@ -8,13 +8,19 @@ public class BoarState : PlayerState
 
     public BoarState(PlayerController c) : base(c) { }
 
-    public override void Enter() { Debug.Log("Режим Кабана: Таран!"); }
+    public override void Enter() 
+    {
+        //controller.SwitchModel(controller.boarModel);
+    }
     public override void Exit() { isDashing = false; }
 
     public override void Update()
     {
         // Кабан рухається, якщо не в стані ривка (або можна дозволити корегувати рух)
         controller.StandardMovement(controller.boarSpeed);
+        
+        // Анімація бігу
+        controller.UpdateAnimationMovement(); 
     }
 
     public override void Ability()
@@ -27,6 +33,10 @@ public class BoarState : PlayerState
 
     private IEnumerator DashRoutine()
     {
+        //// Початок анімації ривка
+        //if (controller.currentAnimator != null)
+        //    controller.currentAnimator.SetBool("Dash", true);
+
         isDashing = true;
         controller.PlaySound(controller.boarAttackSound);
 
@@ -39,6 +49,10 @@ public class BoarState : PlayerState
             controller.characterController.Move(controller.transform.forward * controller.boarDashForce * Time.deltaTime);
             yield return null;
         }
+
+        //// Кінець анімації ривка
+        //if (controller.currentAnimator != null)
+        //    controller.currentAnimator.SetBool("Dash", false);
 
         isDashing = false;
     }
