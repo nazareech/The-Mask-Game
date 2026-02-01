@@ -8,7 +8,7 @@ public class BunnyState : PlayerState
     public override void Enter()
     {
         controller.jumpHeight = controller.bunnyHighJump;
-        //controller.SwitchModel(controller.bunnyModel);
+        controller.SwitchModel(controller.bunnyModel);
     }
     public override void Exit()
     {

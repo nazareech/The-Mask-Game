@@ -10,7 +10,7 @@ public class BoarState : PlayerState
 
     public override void Enter() 
     {
-        //controller.SwitchModel(controller.boarModel);
+        controller.SwitchModel(controller.boarModel);
     }
     public override void Exit() { isDashing = false; }
 
