@@ -1,48 +1,41 @@
-﻿using Unity.Cinemachine;
-using UnityEngine;
-using System;
+﻿using UnityEngine;
+using Unity.Cinemachine; // Якщо стара версія, тут буде using Cinemachine;
 using UnityEngine.Events;
 
-
-public class CamerasManager : MonoBehaviour
+public class CameraManager : MonoBehaviour
 {
-    public GameObject StartButtonUI;
-
     [SerializeField] private CameraPoint[] cameras;
-    [SerializeField] private int activePriority = 1;
+    [SerializeField] private int activePriority = 10;
     [SerializeField] private int inactivePriority = 0;
 
     private int current;
 
-    private void Awake()
+    private void Start() // Змінив Awake на Start для певності ініціалізації
     {
         foreach (var item in cameras)
         {
-            item.cam.Priority = inactivePriority;
+            if(item.cam != null) item.cam.Priority = inactivePriority;
         }
-        cameras[0].cam.Priority = activePriority;
+        if(cameras.Length > 0) cameras[0].cam.Priority = activePriority;
     }
 
     public void SetCamera(int id)
     {
-        if (id < 0 || id >= cameras.Length || id == current)
-        {
-            return;
-        }
+        if (id < 0 || id >= cameras.Length || id == current) return;
 
-        cameras[current].cam.Priority = inactivePriority;
+        // Вимикаємо стару
+        if(cameras[current].cam != null) cameras[current].cam.Priority = inactivePriority;
         cameras[current].onClose.Invoke();
 
-        cameras[id].cam.Priority = activePriority;
+        // Вмикаємо нову
+        if(cameras[id].cam != null) cameras[id].cam.Priority = activePriority;
         current = id;
-
         cameras[id].onOpen.Invoke();
     }
 
     private void Update()
     {
-        StartButtonUI.SetActive(cameras[current].cam.name == "CinemachineCamera_3");
-
+        // Логіка повернення назад на ESC
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (cameras[current].previousCam != null)
@@ -57,13 +50,12 @@ public class CamerasManager : MonoBehaviour
                 }
             }
         }
-
     }
 
     [System.Serializable]
-    private struct CameraPoint
+    public struct CameraPoint
     {
-        public CinemachineCamera cam;
+        public CinemachineCamera cam; // Для старого Cinemachine змініть на CinemachineVirtualCamera
         public CinemachineCamera previousCam;
         public UnityEvent onOpen;
         public UnityEvent onClose;
