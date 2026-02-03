@@ -1,54 +1,73 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [Header("Налаштування Спавна")]
-    public int enemiesToSpawn = 50;
-    public float spawnRadius = 50f;
-    private EnemyPooler pooler;
+    [Header("Spawn Settings")]
+    [SerializeField] private Transform[] spawnPoints; // Масив точок спавна
+    [SerializeField] private GameObject[] enemyPrefabs; // Масив префабів ворогів (різні типи)
+    [SerializeField] private float spawnInterval = 3f;
 
-    void Start()
+    [Header("Targets")]
+    [SerializeField] private Transform playerTransform;
+    [SerializeField] private Transform totemTransform; // Сюди перетягнеш Тотем в інспекторі
+
+    [Header("Dependencies")]
+    [SerializeField] private RadialMenu radialMenu; // Посилання на меню з ресурсами
+
+    //private bool isSpawning = false;
+
+    private void Start()
     {
-        pooler = FindFirstObjectByType<EnemyPooler>();
-
-        if (pooler == null)
-        {
-            Debug.LogError("EnemyPooler не знайдено!");
-            return;
-        }
-
-        SpawnEnemies();
+        // Запускаємо корутину спавна
+        StartCoroutine(SpawnRoutine());
     }
 
-    void SpawnEnemies()
+    private IEnumerator SpawnRoutine()
     {
-        int successfullySpawned = 0;
-
-        for (int i = 0; i < enemiesToSpawn; i++)
+        while (true)
         {
-            GameObject enemy = pooler.GetPooledEnemy();
+            yield return new WaitForSeconds(spawnInterval);
 
-            if (enemy != null)
+            // Перевіряємо умови спавна або ліміти кількості ворогів тут
+            SpawnEnemy();
+        }
+    }
+
+    private void SpawnEnemy()
+    {
+        if (spawnPoints.Length == 0 || enemyPrefabs.Length == 0) return;
+
+        // 1. Вибираємо випадкову позицію
+        int randomPointIndex = Random.Range(0, spawnPoints.Length);
+        Transform spawnPoint = spawnPoints[randomPointIndex];
+
+        // 2. Вибираємо випадкового ворога (різні типи)
+        int randomEnemyIndex = Random.Range(0, enemyPrefabs.Length);
+        GameObject selectedPrefab = enemyPrefabs[randomEnemyIndex];
+
+        // 3. Створюємо ворога
+        GameObject newEnemy = Instantiate(selectedPrefab, spawnPoint.position, spawnPoint.rotation);
+
+        // 4. Визначаємо ціль (Гравець чи Тотем?)
+        Transform currentTarget = playerTransform; // За замовчуванням - гравець
+
+        // Перевірка умови з твого скрипта
+        if (radialMenu != null && radialMenu.AllMaskIsUnlocked())
+        {
+            if (totemTransform != null)
             {
-                Vector3 randomPosition = transform.position + Random.insideUnitSphere * spawnRadius;
-                randomPosition.y = transform.position.y; // Тримаємо на одній висоті
-
-                enemy.transform.position = randomPosition;
-                enemy.transform.rotation = Quaternion.identity;
-
-                // Робимо ворога незалежним від пулу перед спавном (опціонально, залежить від вашої архітектури)
-                enemy.transform.SetParent(null);
-
-                enemy.SetActive(true); // Вмикаємо об'єкт (раніше тут був NetworkServer.Spawn)
-
-                successfullySpawned++;
-            }
-            else
-            {
-                Debug.LogWarning("Пул ворогів вичерпано!");
-                break;
+                currentTarget = totemTransform; // Якщо маски зібрані - атакуємо Тотем
             }
         }
-        Debug.Log($"Заспавнено {successfullySpawned} ворогів локально.");
+
+        // 5. Передаємо ціль ворогу
+        // Припускаємо, що на ворогу висить скрипт EnemyAI (змініть назву на свій скрипт)
+        var enemyScript = newEnemy.GetComponent<EnemyAI>();
+        if (enemyScript != null)
+        {
+            enemyScript.SetTarget(currentTarget);
+        }
     }
 }

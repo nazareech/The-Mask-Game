@@ -33,6 +33,11 @@ public class RadialMenu : MonoBehaviour
 
     }
 
+    public bool IsOpen()
+    {
+        return _isOpen;
+    }
+
     public void Toggle()
     {
         if (_isOpen)
@@ -45,6 +50,25 @@ public class RadialMenu : MonoBehaviour
         }
 
             Cursor.lockState = CursorLockMode.None; // Відкриваємо курсор
+    }
+
+    public bool AllMaskIsUnlocked()
+    {
+        // Фільтруємо лише розблоковані режими
+        List<RadialMenuOption> unlockedOptions = new List<RadialMenuOption>();
+        foreach (var option in AllOptions)
+        {
+            if (option.IsUnlocked) unlockedOptions.Add(option);
+        }
+
+        if (unlockedOptions.Count == AllOptions.Count)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public void Open()
@@ -174,12 +198,12 @@ public class RadialMenu : MonoBehaviour
 
             case AnimalType.Gorilla:
                 Debug.Log("Switching to Gorilla");
-                playerController.SetState(new GorillaState(playerController));
+                playerController.SetState(new GorillaState(playerController, this));
                 break;
 
             case AnimalType.Shanaman:
                 Debug.Log("Switching to Shanaman");
-                playerController.SetState(new ShamanState(playerController));
+                playerController.SetState(new ShamanState(playerController, this));
                 break;
         }
     }
