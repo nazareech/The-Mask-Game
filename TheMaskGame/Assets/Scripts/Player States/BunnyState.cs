@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 
 public class BunnyState : PlayerState
 {
+    private float nextJumpTime = 0f; // Таймер перезарядки стрибка
     public BunnyState(PlayerController c) : base(c) { }
 
     public override void Enter()
@@ -23,15 +24,27 @@ public class BunnyState : PlayerState
 
     public override void Ability()
     {
-        if (Keyboard.current.spaceKey.wasPressedThisFrame && controller.characterController.isGrounded)
+        // Логіка стрибка:
+        // 1. Натиснуто пробіл
+        // 2. Персонаж на землі (isGrounded) - інакше не відштовхнеться
+        // 3. Минув час перезарядки (Time.time >= nextJumpTime)
+         
+        if (Keyboard.current.spaceKey.wasPressedThisFrame
+            && controller.isGrounded
+            && Time.time >= nextJumpTime)
         {
+            // Встановлюємо час наступного дозволеного стрибка
+            nextJumpTime = Time.time + controller.bunnyJumpCooldown;
+
             // Анімація стрибка
             if (controller.currentAnimator != null)
                 controller.currentAnimator.SetTrigger("Jump");
 
             // Формула стрибка
             controller.velocity.y = Mathf.Sqrt(controller.jumpHeight * -2f * controller.gravity);
-            // Можна додати звук звичайного стрибка тут
+
+            // Тут можна додати звичайний звук стрибка (не атаки)
+            controller.PlaySound(controller.bunnyjumpSound); 
         }
     }
 

@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
     public GameObject playerCamera;
     public RadialMenu menuController; // Ваше меню
     private float CoinCount = 0f;
+    [HideInInspector]
+    public float nextAttackTime = 0f; // Змінна для відліку часу
 
     // --- Фізика ---
     public float jumpHeight = 2f;
@@ -19,12 +21,19 @@ public class PlayerController : MonoBehaviour
     public bool useGravity = true;
     [HideInInspector] public Vector3 velocity;
 
+    [Header("Перевірка Землі")]
+    public Transform groundCheck;  // Сюди перетягніть об'єкт GroundCheck
+    public float groundDistance = 0.4f; // Радіус сфери перевірки
+    public LayerMask groundMask;   // Тут виберіть шар "Ground
+    public bool isGrounded; // Ця змінна головна перевірка землі
+
     // --- Налаштування Шамана ---
     [Header("Шаман")]
     public float shamanSpeed = 3f;
     public float shamanOrbSpeed = 20f;
     public float shamanOrbDamage = 40f;
     public float shamanOrbKnockback = 10f;
+    public float shamanAttackCooldown = 1.0f; // Час перезарядки (секунди)
     public AudioClip shamanAttackSound; // Звук!
 
     // --- Налаштування Кабана ---
@@ -41,6 +50,7 @@ public class PlayerController : MonoBehaviour
     public Transform firePoint;
     public float bananaSpeed = 15f;
     public float bananaDamage = 25f;
+    public float gorillaAttackCooldown = 1.5f; // Час перезарядки (секунди)
     public AudioClip gorillaAttackSound; // Звук!
 
     // --- Налаштування Птаха ---
@@ -57,7 +67,9 @@ public class PlayerController : MonoBehaviour
     public float bunnyHighJump = 5f;
     public float bunnyStompDamage = 50f;
     public float bunnyBounceForce = 8f;
-    public AudioClip bunnyAttackSound; // Звук!
+    public float bunnyJumpCooldown = 0.8f; // Час між стрибками
+    public AudioClip bunnyAttackSound; // Звук Шмяк!
+    public AudioClip bunnyjumpSound; // Звук!
 
     // --- Візуальні Моделі ---
     [Header("Візуальні Моделі (Mesh Objects)")]
@@ -82,6 +94,18 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        // 1. ВЛАСНА ПЕРЕВІРКА ЗЕМЛІ
+        // Створюємо невидиму сферу на ногах і перевіряємо, чи торкається вона шару Ground
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+        // 2. СКИДАННЯ ШВИДКОСТІ
+        // Якщо ми на землі і швидкість падіння вже велика, скидаємо її до -2
+        // (-2 краще ніж 0, бо це "притискає" гравця до підлоги)
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f;
+        }
+
         if (Keyboard.current.tabKey.wasPressedThisFrame) menuController.Toggle();
 
         currentState.Update();
@@ -106,6 +130,20 @@ public class PlayerController : MonoBehaviour
         {
             menuController.UnlockMode(item.typeToUnlock);
             Destroy(other.gameObject);
+            return;
+        }
+
+        // 2.НОВА ЛОГІКА: Підбір монет(LootPickup)
+        // Ми перевіряємо, чи є на об'єкті скрипт LootPickup
+        // (Можна також перевіряти other.CompareTag("Coin"), це буде трохи швидше)
+        LootPickup coin = other.GetComponent<LootPickup>();
+        if (coin != null)
+        {
+            // Додаємо монети
+            AddCoins(coin.coinsAmount);
+
+            // Викликаємо метод збору на самій монеті (щоб вона сховалася/повернулася в пул)
+            coin.Collect();
             return;
         }
 
@@ -147,11 +185,11 @@ public class PlayerController : MonoBehaviour
             float speed = horizontalVelocity.magnitude;
 
             // В аніматорі має бути параметр Float з назвою "Speed"
-            currentAnimator.SetFloat("Speed", speed);
+            //currentAnimator.SetFloat("Speed", speed);
             currentAnimator.SetBool("IsMoving", speed > 0);
 
             // Опціонально: чи ми на землі
-            currentAnimator.SetBool("IsGrounded", characterController.isGrounded);
+            //currentAnimator.SetBool("IsGrounded", characterController.isGrounded);
         }
     }
 

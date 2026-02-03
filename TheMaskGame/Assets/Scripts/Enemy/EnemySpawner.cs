@@ -16,7 +16,7 @@ public class EnemySpawner : MonoBehaviour
     [Header("Dependencies")]
     [SerializeField] private RadialMenu radialMenu; // Посилання на меню з ресурсами
 
-    private bool isSpawning = false;
+    //private bool isSpawning = false;
 
     private void Start()
     {

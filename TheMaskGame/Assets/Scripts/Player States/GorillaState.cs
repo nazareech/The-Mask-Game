@@ -10,8 +10,14 @@ public class GorillaState : PlayerState
 
     public override void Ability()
     {
-        if (Keyboard.current.fKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame && !radialMenu.IsOpen())
+        // Перевірка часу
+        if ((Keyboard.current.fKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame)
+            && !radialMenu.IsOpen()
+            && Time.time >= controller.nextAttackTime)
         {
+            // Оновлюємо таймер, використовуючи cooldown горили
+            controller.nextAttackTime = Time.time + controller.gorillaAttackCooldown;
+
             ThrowBanana();
         }
     }

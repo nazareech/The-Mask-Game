@@ -22,8 +22,14 @@ public class ShamanState : PlayerState
 
     public override void Ability()
     {
-        if (Keyboard.current.fKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame && !radialMenu.IsOpen())
+        // Перевіряємо натискання кнопки ТА чи настав час для атаки (Time.time >= nextAttackTime)
+        if ((Keyboard.current.fKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame)
+            && !radialMenu.IsOpen()
+            && Time.time >= controller.nextAttackTime)
         {
+            // Встановлюємо наступний дозволений час пострілу: поточний час + затримка
+            controller.nextAttackTime = Time.time + controller.shamanAttackCooldown;
+
             Shoot();
         }
     }

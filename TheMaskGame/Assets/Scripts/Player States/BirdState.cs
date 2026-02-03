@@ -12,11 +12,10 @@ public class BirdState : PlayerState
 
         controller.SwitchModel(controller.birdModel);
 
-        // Якщо у птаха є анімація зльоту
+        // Включення анімації зльоту
         if (controller.currentAnimator != null)
-            controller.currentAnimator.SetBool("IsFlying", true);
+            //controller.currentAnimator.SetBool("IsFlying", true);
 
-        // --- ВИПРАВЛЕННЯ ПОМИЛКИ ---
         // Перевіряємо, чи контролер взагалі активний і увімкнений, перш ніж рухати
         if (controller.characterController.enabled && controller.gameObject.activeInHierarchy)
         {

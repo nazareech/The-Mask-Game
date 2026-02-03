@@ -50,9 +50,9 @@ public class BoarState : PlayerState
             yield return null;
         }
 
-        //// Кінець анімації ривка
-        //if (controller.currentAnimator != null)
-        //    controller.currentAnimator.SetBool("Dash", false);
+        // Кінець анімації ривка
+        if (controller.currentAnimator != null)
+            controller.currentAnimator.SetBool("Dash", false);
 
         isDashing = false;
     }
