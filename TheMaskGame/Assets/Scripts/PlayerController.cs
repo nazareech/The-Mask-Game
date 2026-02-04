@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     public float mouseSensitivity = 100f;
     public GameObject playerCamera;
     public RadialMenu menuController; // Ваше меню
+    public Pause pauseMenuController; // Ваше меню
     private float CoinCount = 0f;
     [HideInInspector]
     public float nextAttackTime = 0f; // Змінна для відліку часу
@@ -107,6 +108,9 @@ public class PlayerController : MonoBehaviour
         }
 
         if (Keyboard.current.tabKey.wasPressedThisFrame) menuController.Toggle();
+
+
+        if (Keyboard.current.escapeKey.wasPressedThisFrame) pauseMenuController.PauseGame();
 
         currentState.Update();
         currentState.Ability();
@@ -219,8 +223,16 @@ public class PlayerController : MonoBehaviour
     }
 
     // Методи курсору (Hide/Show) залишаємо тут...
-    public void ShowCursor() { Cursor.visible = true; Cursor.lockState = CursorLockMode.None; }
-    public void HideCursor() { Cursor.visible = false; Cursor.lockState = CursorLockMode.Locked; }
+    public void ShowCursor() 
+    {
+        Cursor.lockState = CursorLockMode.None; // Відпускаємо курсор
+        Cursor.visible = true; // Робимо курсор видимим 
+    }
+    public void HideCursor() 
+    {
+        Cursor.lockState = CursorLockMode.Locked; // Блокуємо курсор
+        Cursor.visible = false; // Робимо курсор не видимим
+    }
 
     public void ResetVelocity() { velocity = Vector3.zero; }
 

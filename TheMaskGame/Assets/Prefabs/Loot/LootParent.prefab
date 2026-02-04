@@ -174,7 +174,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 73fe08d976d650143acff2f1a206914b, type: 3}
+  m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -279,8 +279,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 3.314744}
-  m_Center: {x: 0, y: 0, z: 0.05427313}
+  m_Size: {x: 1, y: 1, z: 2.8745425}
+  m_Center: {x: 0, y: 0, z: 0.13576472}
 --- !u!136 &8993495483242826130
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -300,10 +300,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 2.012413
-  m_Height: 4.024826
+  m_Radius: 2.2124565
+  m_Height: 4.424913
   m_Direction: 1
-  m_Center: {x: 0, y: -0.014289618, z: -0.10380936}
+  m_Center: {x: -0.08000994, y: -0.014289618, z: 0.016224146}
 --- !u!54 &6365806018221512053
 Rigidbody:
   m_ObjectHideFlags: 0

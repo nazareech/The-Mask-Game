@@ -59,7 +59,7 @@ public class RadialMenuEntry : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // ДОДАНО: Перевірка, чи об'єкт ще існує
+        // Перевірка, чи об'єкт ще існує
         if (_isDestroyed || Rect == null) return;
 
         Rect.DOComplete();
@@ -68,14 +68,13 @@ public class RadialMenuEntry : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        // ДОДАТИ ЦЕ
         if (_isDestroyed || Rect == null) return;
 
         Rect.DOComplete();
         Rect.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutQuad);
     }
 
-    // ДОДАНО: Коли об'єкт знищується, примусово вбиваємо всі його анімації
+    // Коли об'єкт знищується, примусово вбиваємо всі його анімації
     private void OnDestroy()
     {
         _isDestroyed = true;
