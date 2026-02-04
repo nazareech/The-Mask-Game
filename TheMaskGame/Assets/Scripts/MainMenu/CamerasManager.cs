@@ -1,5 +1,6 @@
-﻿using UnityEngine;
-using Unity.Cinemachine; // Якщо стара версія, тут буде using Cinemachine;
+﻿using Unity.Cinemachine; // Якщо стара версія, тут буде using Cinemachine;
+using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.Events;
 
 public class CameraManager : MonoBehaviour
@@ -7,6 +8,9 @@ public class CameraManager : MonoBehaviour
     [SerializeField] private CameraPoint[] cameras;
     [SerializeField] private int activePriority = 10;
     [SerializeField] private int inactivePriority = 0;
+    [SerializeField] private Animator characterAnimator;
+    [SerializeField] private AudioSource audioSource;
+    public AudioClip switchCameraSound; // Звук!
 
     private int current;
 
@@ -21,16 +25,30 @@ public class CameraManager : MonoBehaviour
 
     public void SetCamera(int id)
     {
+        // Відтворюємо звук перемикання камери з випадковою висотою тону
+        audioSource.pitch = Random.Range(0.2f, 0.5f);
+        audioSource.PlayOneShot(switchCameraSound);
+
         if (id < 0 || id >= cameras.Length || id == current) return;
 
         // Вимикаємо стару
-        if(cameras[current].cam != null) cameras[current].cam.Priority = inactivePriority;
+        if (cameras[current].cam != null) cameras[current].cam.Priority = inactivePriority;
         cameras[current].onClose.Invoke();
 
         // Вмикаємо нову
-        if(cameras[id].cam != null) cameras[id].cam.Priority = activePriority;
+        if (cameras[id].cam != null) cameras[id].cam.Priority = activePriority;
         current = id;
         cameras[id].onOpen.Invoke();
+
+
+        if (id == 2)
+        {
+            OnAnimtation(true); // Запускаємо анімацію персонажа на початку
+        }
+        else
+        {
+            OnAnimtation(false); // Зупиняємо анімацію персонажа, якщо це не камера 2
+        }
     }
 
     private void Update()
@@ -50,6 +68,11 @@ public class CameraManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void OnAnimtation(bool isActive)
+    {
+        characterAnimator.SetBool("Dancing", isActive);
     }
 
     [System.Serializable]

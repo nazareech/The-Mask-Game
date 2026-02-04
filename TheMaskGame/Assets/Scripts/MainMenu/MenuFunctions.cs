@@ -6,12 +6,15 @@ using UnityEngine.UI;
 public class MenuFunctions : MonoBehaviour
 {
     [Header("Loading Settings")]
+    public GameObject Canvas; // Канвас завантаження
     public GameObject loadingScreen; // Канвас завантаження
     public Slider progressBar;
 
     // Метод для кнопки "Грати"
     public void LoadGameScene(int sceneIndex)
     {
+
+        Time.timeScale = 1f; // Відновлюємо час у грі
         StartCoroutine(LoadAsynchronously(sceneIndex));
     }
 

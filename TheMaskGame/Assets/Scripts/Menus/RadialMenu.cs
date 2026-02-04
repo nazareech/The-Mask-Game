@@ -48,8 +48,6 @@ public class RadialMenu : MonoBehaviour
         {
             Open();
         }
-
-            Cursor.lockState = CursorLockMode.None; // Відкриваємо курсор
     }
 
     public bool AllMaskIsUnlocked()
@@ -112,7 +110,7 @@ public class RadialMenu : MonoBehaviour
 
     public void Close()
     {
-        playerController.HideCursor(); // Ховаємо курсор при закритті меню
+
         _isOpen = false;
 
         foreach (var entry in _activeEntries)
@@ -141,6 +139,8 @@ public class RadialMenu : MonoBehaviour
                     }
                 });
         }
+        playerController.HideCursor(); // Ховаємо курсор при закритті меню
+
         _activeEntries.Clear();
     }
 
