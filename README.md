@@ -106,7 +106,8 @@
 ## 📦 Build гри
 
 Готовий білд гри доступний за посиланням:
-👉 **[Download Build]([LINK_TO_BUILD](https://github.com/nazareech/The-Mask-Game/releases/tag/Beta_v1.0))**
+👉 **[Download Build](https://github.com/nazareech/The-Mask-Game/releases/tag/Beta_v1.0)**
+
 
 **Платформа:** Windows  
 **Управління:** Клавіатура + миша
