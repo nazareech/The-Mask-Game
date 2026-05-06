@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &626764555168932668
 Transform:
   m_ObjectHideFlags: 0
@@ -1616,6 +1616,7 @@ MonoBehaviour:
   mouseSensitivity: 100
   playerCamera: {fileID: 0}
   menuController: {fileID: 0}
+  pauseMenuController: {fileID: 0}
   nextAttackTime: 0
   jumpHeight: 5
   gravity: -20
@@ -3202,6 +3203,10 @@ PrefabInstance:
     - target: {fileID: 5355594767628845573, guid: a72be4deaa1649d40b65a220e318952e, type: 3}
       propertyPath: m_Name
       value: Shaman
+      objectReference: {fileID: 0}
+    - target: {fileID: 5355594767628845573, guid: a72be4deaa1649d40b65a220e318952e, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
