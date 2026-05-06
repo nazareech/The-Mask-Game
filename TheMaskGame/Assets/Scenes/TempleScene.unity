@@ -21575,11 +21575,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2603055228247794391, guid: e24d26a4c1a800f40aa569ab5636b473, type: 3}
   m_PrefabInstance: {fileID: 187185640}
   m_PrefabAsset: {fileID: 0}
---- !u!82 &1097262515 stripped
-AudioSource:
-  m_CorrespondingSourceObject: {fileID: 1272052830226198888, guid: 89e18c4a3fe65104d9a15c7061e9b176, type: 3}
-  m_PrefabInstance: {fileID: 1877573430}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1103072216
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -36614,10 +36609,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 463699153830621368, guid: 89e18c4a3fe65104d9a15c7061e9b176, type: 3}
-      propertyPath: audioSource
-      value: 
-      objectReference: {fileID: 1097262515}
-    - target: {fileID: 463699153830621368, guid: 89e18c4a3fe65104d9a15c7061e9b176, type: 3}
       propertyPath: playerCamera
       value: 
       objectReference: {fileID: 287671683}
@@ -36625,10 +36616,6 @@ PrefabInstance:
       propertyPath: menuController
       value: 
       objectReference: {fileID: 2080840426}
-    - target: {fileID: 463699153830621368, guid: 89e18c4a3fe65104d9a15c7061e9b176, type: 3}
-      propertyPath: boarAttackSound
-      value: 
-      objectReference: {fileID: 8300000, guid: 8297728f80ec72643a5f942739d673f5, type: 3}
     - target: {fileID: 463699153830621368, guid: 89e18c4a3fe65104d9a15c7061e9b176, type: 3}
       propertyPath: pauseMenuController
       value: 
@@ -39732,12 +39719,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 807450220}
     - target: {fileID: 2090106269869029703, guid: 2290ad8cb79dc2441aa161c4f8a7703f, type: 3}
+      propertyPath: AllOptions.Array.data[0].IsUnlocked
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2090106269869029703, guid: 2290ad8cb79dc2441aa161c4f8a7703f, type: 3}
       propertyPath: AllOptions.Array.data[1].IsUnlocked
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2090106269869029703, guid: 2290ad8cb79dc2441aa161c4f8a7703f, type: 3}
       propertyPath: AllOptions.Array.data[2].IsUnlocked
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2090106269869029703, guid: 2290ad8cb79dc2441aa161c4f8a7703f, type: 3}
       propertyPath: AllOptions.Array.data[3].IsUnlocked
@@ -39745,7 +39736,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2090106269869029703, guid: 2290ad8cb79dc2441aa161c4f8a7703f, type: 3}
       propertyPath: AllOptions.Array.data[4].IsUnlocked
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4387018439953386565, guid: 2290ad8cb79dc2441aa161c4f8a7703f, type: 3}
       propertyPath: m_Pivot.x

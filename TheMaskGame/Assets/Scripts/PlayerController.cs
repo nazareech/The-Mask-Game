@@ -76,7 +76,7 @@ public class PlayerController : MonoBehaviour
     [Header("Візуальні Моделі (Mesh Objects)")]
     public GameObject shamanModel;
     public GameObject boarModel;
-    //public GameObject gorillaModel;
+    public GameObject gorillaModel;
     public GameObject birdModel;
     public GameObject bunnyModel;
 
@@ -166,7 +166,7 @@ public class PlayerController : MonoBehaviour
         // 1. Вимикаємо всі моделі
         shamanModel.SetActive(false);
         boarModel.SetActive(false);
-        //gorillaModel.SetActive(false);
+        gorillaModel.SetActive(false);
         birdModel.SetActive(false);
         bunnyModel.SetActive(false);
 

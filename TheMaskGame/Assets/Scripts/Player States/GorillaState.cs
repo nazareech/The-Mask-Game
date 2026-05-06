@@ -4,9 +4,16 @@ using UnityEngine.InputSystem;
 public class GorillaState : PlayerState
 {
     public GorillaState(PlayerController c, RadialMenu r) : base(c, r) { }
-    public override void Enter() { }
+    public override void Enter()
+    { // Вмикаємо модель 
+        controller.SwitchModel(controller.gorillaModel);
+    }
     public override void Exit() { }
-    public override void Update() { controller.StandardMovement(controller.gorillaSpeed); }
+    public override void Update() { 
+        controller.StandardMovement(controller.gorillaSpeed);
+        // Оновлюємо анімацію бігу
+        controller.UpdateAnimationMovement();
+    }
 
     public override void Ability()
     {
@@ -25,6 +32,10 @@ public class GorillaState : PlayerState
     private void ThrowBanana()
     {
         controller.PlaySound(controller.gorillaAttackSound); // Звук кидка
+
+        // Запуск анімації атаки
+        if (controller.currentAnimator != null)
+            controller.currentAnimator.SetTrigger("Attack");
 
         if (BananaPool.Instance == null) return;
         Vector3 spawnPos = controller.firePoint != null ? controller.firePoint.position : controller.transform.position + controller.transform.forward;
